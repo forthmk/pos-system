@@ -1,1 +1,1 @@
-// Shared Axios client factory
+export * from './axios';
