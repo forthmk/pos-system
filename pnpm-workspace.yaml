@@ -1,0 +1,15 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+  swiper: true
+  canvas: true
+  ssh2: true
+  cpu-features: true
+  core-js: false
+  core-js-pure: false
+  es5-ext: false
+  puppeteer: true

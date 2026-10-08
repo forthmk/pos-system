@@ -1,0 +1,28 @@
+{
+    "name": "pos-system",
+    "version": "1.0.0",
+    "private": true,
+    "description": "pos-system — monorepo managed by pnpm workspaces",
+    "author": {
+        "email": "leongsonmk8@gmail.com",
+        "name": "forthmk"
+    },
+    "license": "ISC",
+    "scripts": {
+        "dev": "turbo dev",
+        "dev:api": "turbo run dev --filter=@pos-system/api",
+        "build": "turbo build",
+        "start": "turbo start",
+        "test": "pnpm --filter api test",
+        "db:migrate": "pnpm --filter api db:migrate",
+        "db:gen": "pnpm --filter api db:gen",
+        "db:seed": "pnpm --filter api db:seed"
+    },
+    "dependencies": {
+        "pnpm": "^11.5.0"
+    },
+    "packageManager": "pnpm@11.5.0",
+    "devDependencies": {
+        "turbo": "^2.10.0"
+    }
+}
