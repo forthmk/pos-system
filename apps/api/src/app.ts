@@ -10,7 +10,7 @@ import ApiError from './apiError';
 // Add each module name here as it is built. The entry mounts the module's
 // routes.js at /api/<name> and is the sole registry of active modules.
 const routes: string[] = [
-  // 'auth',
+  'auth',
   // 'categories',
   // 'menu-items',
   // 'tables',
