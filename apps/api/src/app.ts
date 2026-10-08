@@ -11,7 +11,7 @@ import ApiError from './apiError';
 // routes.js at /api/<name> and is the sole registry of active modules.
 const routes: string[] = [
   'auth',
-  // 'categories',
+  'categories',
   // 'menu-items',
   // 'tables',
   // 'orders',
