@@ -12,7 +12,7 @@ import ApiError from './apiError';
 const routes: string[] = [
   'auth',
   'categories',
-  // 'menu-items',
+  'menu-items',
   // 'tables',
   // 'orders',
   // 'payments',
