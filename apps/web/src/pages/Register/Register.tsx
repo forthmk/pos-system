@@ -19,6 +19,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useConfirm } from '../../hooks/useConfirm';
 import { useScannerInput } from '../../hooks/useScannerInput';
 import { LoadingState } from '../../components/ui/Progress';
+import { useLiveFeed } from '../../hooks/useLiveFeed';
 import { friendlyError } from '../../utils/friendlyError';
 import { printReceipt } from '../../utils/printReceipt';
 import { uuid } from '../../utils/uuid';
@@ -49,6 +50,8 @@ const Register = () => {
     const types = useDiscountTypes();
     const nextNumber = useNextNumber();
     const queue = useKioskQueue();
+    // Live: new kiosk orders, scans at other registers and sold-out items show at once.
+    useLiveFeed();
     const scan = useScanSlip();
     const release = useReleaseOrder();
     const placeOrder = usePlaceOrder();

@@ -1,11 +1,12 @@
 import { Trans, useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
 import { ShoppingBag, UtensilsCrossed } from 'lucide-react';
 import type { Language } from '@shared/model';
 import type { DiningMode } from '../cart';
 
 // UI reference 1: "Where will you be dining?" — IN (eat here, table service)
 // or OUT (grab & go, packed bag), and the language. Tapping IN / OUT opens
-// the menu. (The "Orders" board button arrives with the live feed, QB-008.)
+// the menu. Top right: "Orders (n)" opens the Orders board (Preparing / Ready).
 
 const LANGUAGES: { code: Language; label: string; native?: string }[] = [
     { code: 'en', label: 'English' },
@@ -13,14 +14,45 @@ const LANGUAGES: { code: Language; label: string; native?: string }[] = [
     { code: 'ko', label: 'Korean', native: '한국어' },
 ];
 
-const StartScreen = ({ language, onLanguage, onChoose }: { language: Language; onLanguage: (l: Language) => void; onChoose: (m: DiningMode) => void }) => {
+interface Props {
+    language: Language;
+    onLanguage: (l: Language) => void;
+    onChoose: (m: DiningMode) => void;
+    /** Orders being prepared + ready (the board's numbers). */
+    ordersCount: number;
+    onOrders: () => void;
+}
+
+/** 06:10 PM, refreshed every 15 s. */
+const useClock = () => {
+    const [now, setNow] = useState(() => new Date());
+    useEffect(() => {
+        const id = setInterval(() => setNow(new Date()), 15_000);
+        return () => clearInterval(id);
+    }, []);
+    return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+};
+
+const StartScreen = ({ language, onLanguage, onChoose, ordersCount, onOrders }: Props) => {
     const { t } = useTranslation();
+    const clock = useClock();
     return (
         <div className="flex min-h-dvh flex-col bg-[#FFF8F0] px-5 pb-8 pt-6 sm:px-10">
             <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 rounded-full bg-orange-500 px-5 py-2.5 text-base font-extrabold tracking-wider text-white">
-                    <UtensilsCrossed className="h-5 w-5" /> QUICKBITE
+                <span className="flex items-center gap-4">
+                    <span className="flex items-center gap-2 rounded-full bg-orange-500 px-5 py-2.5 text-base font-extrabold tracking-wider text-white">
+                        <UtensilsCrossed className="h-5 w-5" /> QUICKBITE
+                    </span>
+                    <span className="text-lg font-semibold text-slate-600">{clock}</span>
                 </span>
+                <button
+                    type="button"
+                    onClick={onOrders}
+                    className="flex items-center gap-3 rounded-full bg-white px-5 py-2.5 text-lg font-bold text-slate-800 ring-2 ring-slate-100 transition active:scale-95"
+                >
+                    {t('kiosk.orders')}
+                    <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-orange-100 px-2 text-base font-extrabold text-orange-600">{ordersCount}</span>
+                </button>
             </div>
 
             <div className="mt-10 flex flex-col items-center text-center">

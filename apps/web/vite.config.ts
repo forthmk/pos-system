@@ -11,7 +11,8 @@ export default defineConfig({
         host: true,
         // VITE_API_URL=/api: the browser calls this server, which passes /api on
         // to the API (port 3000). Phones on the Wi-Fi then only need this address.
-        proxy: { '/api': { target: 'http://localhost:3000', changeOrigin: true } },
+        // ws: true also passes the live feed (WebSocket /api/live) through.
+        proxy: { '/api': { target: 'http://localhost:3000', changeOrigin: true, ws: true } },
     },
     optimizeDeps: {
         exclude: ['@shared/model', '@shared/axios', '@shared/api', '@shared/utils'],

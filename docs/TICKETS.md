@@ -253,6 +253,27 @@ Max **2 PRs merged per day** into `development`.
 
 **Checked on the dev DB:** chef socket at EXPO-01 → cashier rings up a walk-in (GCash) → `order.sent_to_kitchen` arrives with the ticket (2 × Double Smash Burger, 1 × Golden Crispy Fries, OUT) → complete (board Ready 000010) → complete again 409 → recall → complete → Clear Served (board empty, recall now 409 RECALL_EXPIRED); cashier on `/kds/tickets` → 403; bad token → 4401.
 
+
+### QB-008b — Kitchen display, Orders board, live refresh
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/page/kitchen-display` (cut from QB-008a's branch) |
+| **Layer** | web (+ one API fix) |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.5–5.6, §8.2, UI references "Kitchen Display" and kiosk start screen; README in `pages/Kitchen/`):
+- **`hooks/useLiveFeed.ts`**: one WebSocket to `/api/live` (Vite proxies it, `ws: true`); each event refreshes its TanStack queries; retries 1 → 15 s; on reconnect reloads everything; `online` + `clockOffset` (server clock).
+- **`/kitchen`** (`kds.use`) from the mock-up: QUICKBITE KDS, station • LIVE / OFFLINE, Pending / Completed / Avg Prep, clock, Workflow strip + legend; Pending queue (oldest first, orange bar, red bar + red timer after `kds_delay_minutes`, extras under the item); drag (mouse anywhere, finger on the handle) or tap ✓ to complete; Completed Orders drop zone with frozen prep time, Recall (within `kds_recall_minutes`) and Clear Served. "+ New Kiosk Order" hidden (decision 10).
+- Home: a paired KDS goes straight to `/kitchen`; chefs / managers get a Kitchen Display card.
+- **Kiosk**: clock and **Orders (n)** on the start screen → Orders board (Preparing / Ready, live, closes itself after 1 min), en / 中文 / 한국어.
+- **Register**: Kiosk # list, next number and sold-out refresh live (polling dropped to a 60 s safety net).
+- API: the Completed counter now means "completed, not yet cleared" (as in the mock-up and §5.6).
+- Kitchen border colours use Tailwind's `!` — darwin-ui's stylesheet sets every border colour outside Tailwind's layers.
+
+**Checked in the browser (1440×900 and tablet 768×1024):** chef at EXPO-01 → walk-ins rung up by the cashier appear on the kitchen screen without reloading (000011, 000012, 000013) → mouse drag 000011 into Completed (Avg Prep updates) → tap ✓ on 000009 → Recall 000009 back to Pending → kiosk Orders board (manager) shows Preparing 6 / Ready 1, then 000012 moves to Ready by itself when the kitchen taps ✓ → Clear Served empties Completed and the board's Ready → API stopped: header shows OFFLINE — RECONNECTING; API back: LIVE again and the order placed meanwhile is on screen.
+
 ---
 
 ## 📋 Planned (in build order)
@@ -260,7 +281,6 @@ Max **2 PRs merged per day** into `development`.
 | Ticket | What | Branch |
 |---|---|---|
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
-| QB-008b | Screens: Kitchen display (`/kitchen`), kiosk Orders board, live refresh on the register (`useLiveFeed`) | `addFeature/forthvargas/page/kitchen-display` |
 | QB-009 | Reports: shift sales, tender reconciliation, audit log, close shift → Z-reading, CSV export | `addFeature/forthvargas/page/reports` |
 | QB-010 | Admin: menu / extras / translations, users, discounts, vouchers, terminals, settings | `addFeature/forthvargas/page/admin` |
 

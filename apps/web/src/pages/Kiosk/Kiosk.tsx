@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import type { Language, MenuItem, OrderSummary } from '@shared/model';
 import ConfirmDialog from '../../components/dialogs/ConfirmDialog';
 import { LoadingState } from '../../components/ui/Progress';
+import { useOrdersBoard } from '../../hooks/api/useKds';
 import { useKioskMenu, usePlaceKioskOrder } from '../../hooks/api/useKiosk';
 import { useAuth } from '../../hooks/useAuth';
 import { useIdleReset } from '../../hooks/useIdleReset';
+import { useLiveFeed } from '../../hooks/useLiveFeed';
 import { uuid } from '../../utils/uuid';
 import { cartTotals, initialKioskState, kioskReducer, priceLines } from './cart';
 import CartScreen from './components/CartScreen';
@@ -13,6 +15,7 @@ import ItemScreen from './components/ItemScreen';
 import KioskTopBar from './components/KioskTopBar';
 import MenuScreen from './components/MenuScreen';
 import OrderSentScreen from './components/OrderSentScreen';
+import OrdersBoard from './components/OrdersBoard';
 import StartScreen from './components/StartScreen';
 
 // The self-service kiosk (design §5.1, UI references 1–6): start → menu →
@@ -38,6 +41,11 @@ const Kiosk = () => {
     const [confirmCancel, setConfirmCancel] = useState(false);
     const menu = useKioskMenu(state.language);
     const placeOrder = usePlaceKioskOrder();
+    // Live: sold-out items grey out, the Orders board moves, as they happen.
+    useLiveFeed();
+    const board = useOrdersBoard();
+    const [boardOpen, setBoardOpen] = useState(false);
+    const closeBoard = useCallback(() => setBoardOpen(false), []);
     const [orderError, setOrderError] = useState('');
     // One client_ref per cart: a retry of the same cart can't make a second
     // order; any change to the cart starts a new one.
@@ -111,6 +119,8 @@ const Kiosk = () => {
             <StartScreen
                 language={state.language}
                 onLanguage={setLanguage}
+                ordersCount={(board.data?.preparing.length ?? 0) + (board.data?.ready.length ?? 0)}
+                onOrders={() => setBoardOpen(true)}
                 onChoose={(mode) => {
                     dispatch({ type: 'setMode', mode });
                     setScreen({ name: 'menu' });
@@ -183,6 +193,7 @@ const Kiosk = () => {
     return (
         <>
             {page}
+            {boardOpen && screen.name === 'start' && <OrdersBoard board={board.data} onClose={closeBoard} />}
             <ConfirmDialog
                 open={confirmCancel}
                 onClose={() => setConfirmCancel(false)}

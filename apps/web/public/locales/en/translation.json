@@ -67,6 +67,11 @@
     "pricesChanged": "Prices have changed. Please check your cart and try again.",
     "orderFailed": "We couldn't send your order. Please try again or ask our staff.",
     "bringSlip": "Bring your slip to the counter within {{minutes}} minutes to pay.",
-    "reprintSlip": "Reprint slip"
+    "reprintSlip": "Reprint slip",
+    "orders": "Orders",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "boardHint": "Find your order number. Ready orders can be collected at the counter.",
+    "close": "Close"
   }
 }

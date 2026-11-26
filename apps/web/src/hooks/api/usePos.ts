@@ -22,8 +22,8 @@ export const useDiscountTypes = () => useQuery({ queryKey: ['pos-discount-types'
 /** ORD-000750 preview — refreshed after every sale. */
 export const useNextNumber = () => useQuery({ queryKey: ['pos-next-number'], queryFn: async () => (await posApi.nextNumber()).data, refetchInterval: 15_000 });
 
-/** The Kiosk # list (kiosk orders waiting for payment) — refreshed every 15 s. */
-export const useKioskQueue = () => useQuery({ queryKey: ['pos-kiosk-queue'], queryFn: async () => (await posApi.kioskQueue()).data, refetchInterval: 15_000 });
+/** The Kiosk # list (kiosk orders waiting for payment) — refreshed by the live feed; 60 s is the safety net. */
+export const useKioskQueue = () => useQuery({ queryKey: ['pos-kiosk-queue'], queryFn: async () => (await posApi.kioskQueue()).data, refetchInterval: 60_000 });
 
 export const useCheckVoucher = () => useMutation({ mutationFn: async (v: { code: string; subtotal: number }) => (await posApi.checkVoucher(v.code, v.subtotal)).data });
 

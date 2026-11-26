@@ -8,7 +8,8 @@ Kiosk.tsx            screen state: start → menu → item → cart → sent; Pr
 cart.ts              the cart: picks only (item ID, qty, extra IDs); same item + extras merge;
                      prices read from the menu in centavos (preview — the API prices the order)
 components/
-  StartScreen.tsx    IN / OUT, English / 中文 / 한국어
+  StartScreen.tsx    clock, Orders (n), IN / OUT, English / 中文 / 한국어
+  OrdersBoard.tsx    Orders board: Preparing / Ready numbers, live; closes itself after 1 min
   MenuScreen.tsx     categories, item cards (sold out greyed), Cancel + View Cart
   KioskTopBar.tsx    IN • Dine-In ⇄, language, cart count
   ItemScreen.tsx     qty − / +, extras, Add to Order
@@ -18,4 +19,4 @@ components/
   QtyStepper.tsx · MenuIcon.tsx
 ```
 
-Text is in `public/locales/{en,zh,ko}/translation.json` under `kiosk.*`; menu names come from the API in the chosen language. Data: `useKioskMenu(lang)` (`hooks/api/useKiosk.ts`). Idle reset: `hooks/useIdleReset.ts`.
+Text is in `public/locales/{en,zh,ko}/translation.json` under `kiosk.*`; menu names come from the API in the chosen language. Data: `useKioskMenu(lang)` (`hooks/api/useKiosk.ts`), `useOrdersBoard()` (`hooks/api/useKds.ts`), both refreshed live by `useLiveFeed()` (sold out greys at once; the board moves as the kitchen bumps). Idle reset: `hooks/useIdleReset.ts`.

@@ -1,5 +1,5 @@
 import { Link, Navigate } from 'react-router-dom';
-import { CheckCircle2, MonitorSmartphone, ScanBarcode, UserRound } from 'lucide-react';
+import { CheckCircle2, ChefHat, MonitorSmartphone, ScanBarcode, UserRound } from 'lucide-react';
 import { PERMISSIONS, type Permission } from '@shared/utils';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermission } from '../../hooks/usePermission';
@@ -35,6 +35,8 @@ const Home = () => {
     if (!principal) return null;
     // A paired kiosk has one job: the ordering screen.
     if (principal.kind === 'device' && principal.type === 'kiosk') return <Navigate to="/kiosk" replace />;
+    // …and a paired kitchen screen: the kitchen display.
+    if (principal.kind === 'device' && principal.type === 'kds') return <Navigate to="/kitchen" replace />;
 
     const isStaff = principal.kind === 'staff';
     const allowed = (Object.keys(PERMISSIONS) as Permission[]).filter(can);
@@ -66,6 +68,21 @@ const Home = () => {
                     <span>
                         <span className="block text-lg font-extrabold">Cashier Register</span>
                         <span className="block text-sm text-slate-300">Scan kiosk slips</span>
+                    </span>
+                </Link>
+            )}
+
+            {can('kds.use') && (
+                <Link
+                    to="/kitchen"
+                    className="flex items-center gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+                >
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-700 text-white">
+                        <ChefHat className="h-7 w-7" />
+                    </span>
+                    <span>
+                        <span className="block text-lg font-extrabold text-slate-900">Kitchen Display</span>
+                        <span className="block text-sm text-slate-500">Paid orders, live — complete, recall, clear served</span>
                     </span>
                 </Link>
             )}

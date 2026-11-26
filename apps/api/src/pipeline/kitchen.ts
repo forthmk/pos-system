@@ -56,14 +56,11 @@ export const queries = {
             .execute(),
     extras: (lineIds: number[]) =>
         db.selectFrom('order_item_addons').select(['order_item_id', 'name']).where('order_item_id', 'in', lineIds).orderBy('id').execute(),
-    /** Today's completed count and average prep time (seconds), in the DB's clock. */
+    /** Average prep time (seconds) of today's completed orders, in the DB's clock. */
     today: (storeId: number) =>
         db
             .selectFrom('orders')
-            .select([
-                sql<number>`COUNT(*)`.as('completed'),
-                sql<string | null>`AVG(TIMESTAMPDIFF(SECOND, sent_to_kitchen_at, completed_at))`.as('avg_prep'),
-            ])
+            .select(sql<string | null>`AVG(TIMESTAMPDIFF(SECOND, sent_to_kitchen_at, completed_at))`.as('avg_prep'))
             .where('store_id', '=', storeId)
             .where('status', '=', 'completed')
             .where('sent_to_kitchen_at', 'is not', null)
@@ -144,8 +141,9 @@ export async function readTickets(storeId: number, stationId: number | null, ord
 export async function readStats(storeId: number, tickets: KdsTicket[]): Promise<KdsStats> {
     const t = await queries.today(storeId);
     return {
+        // Design §5.6: Pending = preparing; Completed = completed, not yet cleared.
         pending: tickets.filter((x) => x.status === 'preparing').length,
-        completed: Number(t.completed),
+        completed: tickets.filter((x) => x.status === 'completed').length,
         avg_prep_seconds: t.avg_prep === null ? null : Math.round(Number(t.avg_prep)),
     };
 }

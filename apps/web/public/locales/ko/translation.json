@@ -67,6 +67,11 @@
     "pricesChanged": "가격이 변경되었어요. 장바구니를 확인하고 다시 시도해 주세요.",
     "orderFailed": "주문을 보내지 못했어요. 다시 시도하거나 직원에게 문의해 주세요.",
     "bringSlip": "{{minutes}}분 안에 주문표를 카운터로 가져와 결제해 주세요.",
-    "reprintSlip": "주문표 다시 인쇄"
+    "reprintSlip": "주문표 다시 인쇄",
+    "orders": "주문 현황",
+    "preparing": "준비 중",
+    "ready": "준비 완료",
+    "boardHint": "주문 번호를 확인하세요. 준비 완료된 주문은 카운터에서 받아 가세요.",
+    "close": "닫기"
   }
 }

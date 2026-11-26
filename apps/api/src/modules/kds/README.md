@@ -4,7 +4,7 @@ The chef's screen (design §5.5–5.6, §7.8). The work lives in `src/pipeline/k
 
 | Method | Path | Permission | What it does |
 |---|---|---|---|
-| GET | `/api/kds/tickets?station=` | `kds.use` | `{ station, tickets, stats {pending, completed, avg_prep_seconds}, settings {delay_minutes, recall_minutes}, server_time }` — paid orders not yet cleared |
+| GET | `/api/kds/tickets?station=` | `kds.use` | `{ station, tickets, stats {pending, completed (not yet cleared), avg_prep_seconds (today)}, settings {delay_minutes, recall_minutes}, server_time }` — paid orders not yet cleared |
 | POST | `/api/kds/orders/:id/complete` | `kds.use` | ✓ / dragged to Completed: preparing → completed (`order.completed`) |
 | POST | `/api/kds/orders/:id/recall` | `kds.use` | completed → preparing within `kds_recall_minutes` (10), before Clear Served (`order.recalled`) |
 | POST | `/api/kds/clear-served` | `kds.use` | every completed ticket off the display and the board (`order.cleared`) |

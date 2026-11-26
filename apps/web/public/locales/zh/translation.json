@@ -67,6 +67,11 @@
     "pricesChanged": "价格已更新，请检查购物车后再试。",
     "orderFailed": "订单无法送出，请重试或向店员寻求协助。",
     "bringSlip": "请在 {{minutes}} 分钟内携带小票到柜台付款。",
-    "reprintSlip": "重新打印小票"
+    "reprintSlip": "重新打印小票",
+    "orders": "订单",
+    "preparing": "制作中",
+    "ready": "可取餐",
+    "boardHint": "请查找您的订单号。可取餐的订单请到柜台领取。",
+    "close": "关闭"
   }
 }

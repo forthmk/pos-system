@@ -31,7 +31,7 @@ export interface KdsTicket {
 
 export interface KdsStats {
     pending: number;
-    /** Completed today. */
+    /** Completed and not yet cleared (Clear Served). */
     completed: number;
     /** Average seconds from sent to kitchen → completed, today. */
     avg_prep_seconds: number | null;

@@ -55,11 +55,11 @@ describe('pipeline/kitchen', () => {
         assert.equal(tickets[0].lines.length, 2);
     });
 
-    test('stats: pending from the tickets, completed + average prep from today', async () => {
-        stub('today', () => ({ completed: 4, avg_prep: '287.5000' }));
+    test('stats: pending / completed from the tickets on screen, average prep from today', async () => {
+        stub('today', () => ({ avg_prep: '287.5000' }));
         const stats = await readStats(1, [{ status: 'preparing' }, { status: 'completed' }, { status: 'preparing' }] as any);
-        assert.deepEqual(stats, { pending: 2, completed: 4, avg_prep_seconds: 288 });
-        stub('today', () => ({ completed: 0, avg_prep: null }));
+        assert.deepEqual(stats, { pending: 2, completed: 1, avg_prep_seconds: 288 });
+        stub('today', () => ({ avg_prep: null }));
         assert.equal((await readStats(1, [])).avg_prep_seconds, null);
     });
 

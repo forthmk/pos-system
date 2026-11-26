@@ -259,11 +259,11 @@ Copy from `commissary/apps/web/src/` to the same path here. **✅ All of the tab
 
 | Piece | What | Ticket |
 |---|---|---|
-| `hooks/useLiveFeed.ts` | WebSocket subscription; patches the TanStack Query cache on each event | QB-008 |
+| `hooks/useLiveFeed.ts` | one WebSocket to `/api/live`; each event invalidates its TanStack queries (`REFRESH` map), reconnect reloads everything, `online` + `clockOffset` | ✅ QB-008b |
 | `hooks/useScannerInput.ts` | listens on the whole register for a fast 12-digit burst + Enter (barcode scanner), checks the check digit, calls `GET /pos/scan/:code` | QB-006 |
 | `hooks/useIdleReset.ts` | kiosk “Still there?” after `idle_seconds`, reset after 15 s more | ✅ QB-004b |
 | `components/pos/PinPad.tsx` | big-button PIN entry (keyboard works too) | ✅ QB-003 |
-| `components/kds/TicketCard.tsx` | ticket with timer, red after `kds_delay_minutes`, drag / tap ✓ | QB-008 |
+| `pages/Kitchen/components/TicketCard.tsx` + `useTicketDrag.ts` | ticket with timer, red after `kds_delay_minutes`, drag (mouse / finger) or tap ✓, Recall | ✅ QB-008b |
 | Printing | `@forthmk/thermal-printer` (install from GitHub): POS receipt and kiosk slip; the slip needs a Code 128 `barcode` block added to that package | QB-006 |
 
 ### 6.5 How to copy a component

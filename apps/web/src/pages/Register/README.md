@@ -20,4 +20,4 @@ components/
 
 Rules: one discount at a time (tap it again to remove); a scanned kiosk order keeps its IN / OUT and prices (CLEAR to ring up a new ticket); PROCEED is enabled only when the cash covers the total or a 6+ character reference is typed; one `client_ref` per ticket so a retried PROCEED can't charge twice.
 
-Data: `hooks/api/usePos.ts`. Server: `apps/api/src/modules/pos`. Coming: void (manager), close shift + Z-reading, reports (QB-009).
+Data: `hooks/api/usePos.ts`, refreshed live by `useLiveFeed()` — a new kiosk order, a slip scanned at another register or a sold-out item shows at once. Server: `apps/api/src/modules/pos`. Coming: void (manager), close shift + Z-reading, reports (QB-009).
