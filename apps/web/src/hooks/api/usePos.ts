@@ -1,15 +1,59 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { posApi } from '@shared/api';
+import type { OpenShiftBody, PosOrderBody, SettleBody } from '@shared/model';
 
-// Scanning a kiosk slip (design §5.10, GET /api/pos/scan/:code). A mutation,
-// not a query: a scan locks the order to this register.
-export const useScanSlip = () =>
-    useMutation({
-        mutationFn: async (code: string) => (await posApi.scan(code)).data,
+// The cashier register's server data (design §5.3–5.4, §5.10).
+
+export const usePosMenu = () =>
+    useQuery({ queryKey: ['pos-menu'], queryFn: async () => (await posApi.menu()).data, staleTime: 30_000, refetchInterval: 60_000 });
+
+export const useCurrentShift = () => useQuery({ queryKey: ['pos-shift'], queryFn: async () => (await posApi.currentShift()).data.shift });
+
+export const useOpenShift = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (body: OpenShiftBody) => (await posApi.openShift(body)).data.shift,
+        onSuccess: (shift) => qc.setQueryData(['pos-shift'], shift),
     });
+};
+
+export const useDiscountTypes = () => useQuery({ queryKey: ['pos-discount-types'], queryFn: async () => (await posApi.discountTypes()).data, staleTime: 5 * 60_000 });
+
+/** ORD-000750 preview — refreshed after every sale. */
+export const useNextNumber = () => useQuery({ queryKey: ['pos-next-number'], queryFn: async () => (await posApi.nextNumber()).data, refetchInterval: 15_000 });
+
+/** The Kiosk # list (kiosk orders waiting for payment) — refreshed every 15 s. */
+export const useKioskQueue = () => useQuery({ queryKey: ['pos-kiosk-queue'], queryFn: async () => (await posApi.kioskQueue()).data, refetchInterval: 15_000 });
+
+export const useCheckVoucher = () => useMutation({ mutationFn: async (v: { code: string; subtotal: number }) => (await posApi.checkVoucher(v.code, v.subtotal)).data });
+
+const useAfterSale = () => {
+    const qc = useQueryClient();
+    return () => {
+        void qc.invalidateQueries({ queryKey: ['pos-next-number'] });
+        void qc.invalidateQueries({ queryKey: ['pos-kiosk-queue'] });
+    };
+};
+
+export const usePlaceOrder = () => {
+    const after = useAfterSale();
+    return useMutation({ mutationFn: async (body: PosOrderBody) => (await posApi.placeOrder(body)).data, onSuccess: after });
+};
+
+export const useSettleOrder = () => {
+    const after = useAfterSale();
+    return useMutation({ mutationFn: async (v: { orderId: number; body: SettleBody }) => (await posApi.settle(v.orderId, v.body)).data, onSuccess: after });
+};
+
+// Scanning a kiosk slip (design §5.10). A mutation, not a query: a scan locks
+// the order to this register.
+export const useScanSlip = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: async (code: string) => (await posApi.scan(code)).data,
+        onSuccess: () => void qc.invalidateQueries({ queryKey: ['pos-kiosk-queue'] }),
+    });
+};
 
 // CLEAR / Next Customer without paying: unlock the scanned order.
-export const useReleaseOrder = () =>
-    useMutation({
-        mutationFn: async (orderId: number) => (await posApi.release(orderId)).data,
-    });
+export const useReleaseOrder = () => useMutation({ mutationFn: async (orderId: number) => (await posApi.release(orderId)).data });

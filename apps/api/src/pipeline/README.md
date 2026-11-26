@@ -11,7 +11,7 @@ POS  ──┘                                         └─▶ status (prepari
 | File | Does | Design | Status |
 |---|---|---|---|
 | `menu.ts` | Reads the menu (categories → items → extras, names in en / zh / ko with English fallback, extra price = `price_override ?? price`, sold-out kept with `available: false`); sold out / back in for items and extras | §5.1, §7.6, decision 19 | ✅ |
-| `pricing.ts` | Line totals, discounts (percent / fixed voucher / Senior · PWD with group share), VAT split, total due — in centavos, pure (no DB) | §7.6 | ✅ |
+| `pricing.ts` | Re-exports the shared pricing engine (`packages/shared/utils/pricing.ts`): line totals, discounts (percent / fixed voucher / Senior · PWD with group share), VAT split, total due — centavos, pure. Shared so the register's preview can't disagree with the charge | §7.6 | ✅ |
 | `numbering.ts` | Next order number with `SELECT … FOR UPDATE` on `order_sequences` inside the order's transaction → `ORD-000749`; `displayNo` → `000749` | §7.7 | ✅ |
 | `orders.ts` | `placeOrder` (kiosk / walk-in: idempotent, merged lines, 409 ITEM_UNAVAILABLE / TOTAL_CHANGED, discount, payment, one transaction), `settleOrder` (scanned kiosk order → paid → preparing; kiosk prices kept unless lines changed), `getOrder` (with discount + payment) | §5.8, §7.2–7.5 | ✅ |
 | `discounts.ts` | The discount button → pricing rule + `order_discounts` row: Student %, Senior / PWD (ID + name, group share), voucher (active, dates, uses, min spend) | §7.5–7.6, decisions 11–12 | ✅ |

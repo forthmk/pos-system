@@ -160,7 +160,7 @@ src/modules/pos/
 
 | Piece | Where | Ticket |
 |---|---|---|
-| Order pricing engine (lines, extras, discounts, VAT, centavos) — design §7.6 | `src/pipeline/pricing.ts` (the truth; the kiosk's `cart.ts` only previews) | QB-005 |
+| Order pricing engine (lines, extras, discounts, VAT, centavos) — design §7.6 | `packages/shared/utils/pricing.ts`, re-exported by `src/pipeline/pricing.ts` — the API charges with it and the register previews with the same code | ✅ QB-005 / QB-007 |
 | Order number (`SELECT … FOR UPDATE` on `order_sequences`) — §7.7 | `src/pipeline/numbering.ts` | QB-005 |
 | Slip barcode `store + number + slip code + check digit` — §7.11 | `packages/shared/utils/slip-code.ts` | QB-006 |
 | Live feed (WebSocket `/ws`, events in §8.2) | `src/live/` + `@fastify/websocket` | QB-008 |

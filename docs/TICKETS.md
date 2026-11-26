@@ -216,12 +216,30 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-007b — Register screen
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/page/register` (cut from QB-007a's branch) |
+| **Layer** | web + shared |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.3–5.4, §5.7, §5.10, UI reference "Cashier Register"; README in `pages/Register/`):
+- Pricing engine moved to `packages/shared/utils/pricing.ts` (the API re-exports it) so the on-screen totals are the same code the server charges with.
+- `/register`: open-shift dialog, menu panel (tabs, Search SKU, tiles with SKU / BESTSELLER / "1x" / sold out), extras picker, receipt panel (lines − / +, Cash + Exact + Change, GCash / card ref), action bar (IN, OUT, PWD, Voucher, Student, Senior, GCash, Cash, Card, CLEAR, PROCEED, Kiosk #), Senior / PWD and voucher dialogs, Kiosk # list, Payment Settled, receipt printing (`utils/printReceipt.ts`).
+- Scanner keeps working on the register; a scanned kiosk order fills the receipt (kiosk prices, its IN / OUT and payment choice).
+- `posApi` / `usePos.ts`: shift, discount types, voucher check, next number, Kiosk # list, place order, settle, cancel.
+
+**Checked in the browser (1440×900):** design example B rung up — receipt panel identical to the mock-up (Student (10%), Cash 500, Change ₱194.00, TOTAL ₱306) → PROCEED → Payment Settled (ORD-000008 • Sent to Kitchen KDS) → next number ORD-000009; kiosk order scanned with the simulated scanner → Senior (test ID) → preview ₱242.86 (design example C) → GCash ref → PROCEED; both orders paid, discounted and sent to the kitchen in the database.
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |
 |---|---|---|
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
-| QB-007 | Cashier Register: shifts, ticket, discounts, tender, settle scanned orders, receipt | `addFeature/forthvargas/page/register` |
 | QB-008 | Live feed (WebSocket) + Kitchen Display (complete / recall / clear served) | `addFeature/forthvargas/page/kitchen-display` |
 | QB-009 | Reports: shift sales, tender reconciliation, audit log, close shift → Z-reading, CSV export | `addFeature/forthvargas/page/reports` |
 | QB-010 | Admin: menu / extras / translations, users, discounts, vouchers, terminals, settings | `addFeature/forthvargas/page/admin` |
