@@ -194,7 +194,7 @@ Three layouts instead of the commissary's two: `BlankLayout` (login), `DefaultLa
 
 ### 6.2 Components to copy
 
-Copy from `commissary/apps/web/src/` to the same path here.
+Copy from `commissary/apps/web/src/` to the same path here. **✅ All of the table below was copied in QB-003** (plus `ui/Steps`, `Buttons/ViewDetailsButton`, `utils/closestNames`, `hooks/useKeepDialogsOpen`; `exportList`'s Excel export was left out — the POS exports CSV).
 
 | Commissary | What it is | Used in the POS for |
 |---|---|---|
@@ -241,7 +241,7 @@ Copy from `commissary/apps/web/src/` to the same path here.
 | `hooks/useLiveFeed.ts` | WebSocket subscription; patches the TanStack Query cache on each event | QB-008 |
 | `hooks/useScannerInput.ts` | listens on the whole register for a fast 12-digit burst + Enter (barcode scanner), checks the check digit, calls `GET /pos/scan/:code` | QB-006 |
 | `hooks/useIdleReset.ts` | kiosk “Still there?” after 60 s, reset after 15 s more | QB-004 |
-| `components/pos/PinPad.tsx` | 4–6 digit PIN entry | QB-002 |
+| `components/pos/PinPad.tsx` | big-button PIN entry (keyboard works too) | ✅ QB-003 |
 | `components/kds/TicketCard.tsx` | ticket with timer, red after `kds_delay_minutes`, drag / tap ✓ | QB-008 |
 | Printing | `@forthmk/thermal-printer` (install from GitHub): POS receipt and kiosk slip; the slip needs a Code 128 `barcode` block added to that package | QB-006 |
 

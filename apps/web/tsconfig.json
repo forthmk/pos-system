@@ -13,7 +13,8 @@
       "paths": {
          "@shared/model": ["../../packages/shared/model/index.ts"],
          "@shared/axios": ["../../packages/shared/axios/axios.ts"],
-         "@shared/api": ["../../packages/shared/api/index.ts"]
+         "@shared/api": ["../../packages/shared/api/index.ts"],
+         "@shared/utils": ["../../packages/shared/utils/index.ts"]
       },
       "resolveJsonModule": true,
       "isolatedModules": true,

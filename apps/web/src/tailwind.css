@@ -1,0 +1,408 @@
+/* Animate css */
+@import './assets/css/animate.css';
+
+/* tippy css */
+@import './assets/css/tippy.css';
+
+/* swiper css */
+@import './assets/css/swiper.css';
+
+/* Elements - Progressbar */
+@import './assets/css/progressbar.css';
+
+/* Data tables css */
+@import './assets/css/datatables.css';
+
+/* form element*/
+@import './assets/css/form-elements.css';
+
+@import 'tailwindcss';
+@import '@pikoloo/darwin-ui/styles.css';
+@source "../node_modules/@pikoloo/darwin-ui/dist";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Laptop layout (lg: sidebar + tables) needs a mouse, not just width: a
+   landscape touch tablet is ~1280px wide, like a laptop, but should keep the
+   tablet layout (☰ drawer, cards). So lg = 1024px+ with a mouse, or any
+   device 1400px+ wide; max-lg is its exact opposite. */
+@custom-variant lg {
+    @media (width >= 64rem) and (hover: hover), (width >= 87.5rem) {
+        @slot;
+    }
+}
+@custom-variant max-lg {
+    @media (width < 64rem), (hover: none) and (width < 87.5rem) {
+        @slot;
+    }
+}
+
+@theme {
+    --color-primary: #4361ee;
+    --color-primary-light: #eaf1ff;
+    --color-primary-dark-light: rgba(67, 97, 238, 0.15);
+    --color-secondary: #805dca;
+    --color-secondary-light: #ebe4f7;
+    --color-secondary-dark-light: rgba(128, 93, 202, 0.15);
+    --color-success: #00ab55;
+    --color-success-light: #ddf5f0;
+    --color-success-dark-light: rgba(0, 171, 85, 0.15);
+    --color-danger: #e7515a;
+    --color-danger-light: #fff5f5;
+    --color-danger-dark-light: rgba(231, 81, 90, 0.15);
+    --color-warning: #e2a03f;
+    --color-warning-light: #fff9ed;
+    --color-warning-dark-light: rgba(226, 160, 63, 0.15);
+    --color-info: #2196f3;
+    --color-info-light: #e7f7ff;
+    --color-info-dark-light: rgba(33, 150, 243, 0.15);
+    --color-dark: #3b3f5c;
+    --color-dark-light: #eaeaec;
+    --color-dark-dark-light: rgba(59, 63, 92, 0.15);
+    --color-black: #0e1726;
+    --color-black-light: #e3e4eb;
+    --color-black-dark-light: rgba(14, 23, 38, 0.15);
+    --color-white: #ffffff;
+    --color-white-light: #e0e6ed;
+    --color-white-dark: #888ea8;
+
+    /* Beesee brand deck — black and gold.
+       Swap these five values and everything branded follows. */
+    --color-brand-gold: #d4af37;
+    --color-brand-gold-hover: #b8912b;
+    --color-brand-gold-tint: #fbf4dc;
+    --color-brand-ink: #0e1726;
+    --color-brand-ink-hover: #1c2637;
+
+    --font-poppins: 'Source Sans', sans-serif;
+    /* Brand wordmark (header "Commissary" on phones). */
+    --font-brand: 'Plus Jakarta Sans', 'Source Sans 3', sans-serif;
+    /* The Commissary logo's blue (sampled from the mark). */
+    --color-brand: #0531a0;
+
+    --spacing-4_5: 18px;
+
+    --shadow-3xl:
+        0 2px 2px rgb(224 230 237 / 46%),
+        1px 6px 7px rgb(224 230 237 / 46%);
+
+    --animate-fade-in: fadeIn 1s ease-out;
+    --animate-fade-in-up: fadeInUp 1s ease-out;
+    --animate-fade-in-down: fadeInDown 1s ease-out;
+    --animate-fade-in-left: fadeInLeft 1s ease-out;
+    --animate-fade-in-right: fadeInRight 1s ease-out;
+}
+
+/* The Workspaces greeting's name: its gradient slides along, so the colours
+   flow through the letters in a loop. */
+@keyframes name-colors {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* A dialog's title keeps clear of the red close ✕ (DialogX) in its corner,
+   so a long title wraps instead of running under it. */
+[role='dialog']:has(> .dialog-x) h2 {
+    padding-right: 2.75rem;
+}
+
+/* A bar emptying from right to left — the login error's 3-second countdown. */
+@keyframes drain {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+}
+
+/* The Workspaces greeting's 👋: a quick wave in the first ~1s of every 5s. */
+@keyframes wave-hand {
+    0% { transform: rotate(0deg); }
+    4% { transform: rotate(14deg); }
+    8% { transform: rotate(-8deg); }
+    12% { transform: rotate(14deg); }
+    16% { transform: rotate(-4deg); }
+    20% { transform: rotate(10deg); }
+    24%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@layer components {
+    html {
+        @apply scroll-smooth;
+    }
+
+    body {
+        @apply bg-[#F7FDFF] !font-poppins;
+    }
+
+    body.dark {
+        @apply bg-gray-900;
+    }
+
+    .panel {
+        @apply relative rounded-md bg-white p-5 shadow dark:bg-black;
+    }
+
+    /* Buttons */
+    .btn {
+        @apply relative flex items-center justify-center rounded-md px-5 py-2 text-sm font-medium outline-none transition duration-300;
+    }
+    .btn-primary {
+        @apply border-primary bg-primary text-white shadow-primary/60;
+    }
+    .btn-outline-primary {
+        @apply border-primary text-primary shadow-none hover:bg-primary hover:text-white;
+    }
+    .btn-secondary {
+        @apply border-secondary bg-secondary text-white shadow-secondary/60;
+    }
+    .btn-success {
+        @apply border-success bg-success text-white shadow-success/60;
+    }
+    .btn-danger {
+        @apply border-danger bg-danger text-white shadow-danger/60;
+    }
+    .btn-warning {
+        @apply border-warning bg-warning text-white shadow-warning/60;
+    }
+    .btn-info {
+        @apply border-info bg-info text-white shadow-info/60;
+    }
+    .btn-dark {
+        @apply border-dark bg-dark text-white shadow-dark/60;
+    }
+
+    /* Form */
+    .form-input,
+    .form-textarea,
+    .form-select,
+    .form-multiselect {
+        @apply w-full rounded-md border border-white-light bg-white px-4 py-2 text-sm font-semibold text-black !outline-none focus:border-primary focus:ring-transparent dark:border-[#17263c] dark:bg-[#121e32] dark:text-white-dark dark:focus:border-primary;
+    }
+
+    label {
+        @apply mb-1.5 block font-semibold text-gray-500;
+    }
+
+    /* checkbox & radio */
+    .form-radio,
+    .form-checkbox {
+        @apply h-5 w-5 cursor-pointer rounded border-2 border-white-light bg-transparent text-primary !shadow-none !outline-none !ring-0 !ring-offset-0 checked:bg-[length:90%_90%] disabled:cursor-not-allowed disabled:bg-[#eee] ltr:mr-1.5 rtl:ml-1.5
+      dark:border-[#253b5c] dark:checked:border-transparent dark:disabled:bg-[#1b2e4b];
+    }
+
+    .form-radio {
+        @apply rounded-full;
+    }
+
+    /* dropdown */
+    .dropdown {
+        @apply relative;
+    }
+    .dropdown > button {
+        @apply flex;
+    }
+    .dropdown ul {
+        @apply my-1 min-w-[120px] rounded bg-white p-0 py-2 dark:bg-[#1b2e4b] text-black dark:text-white-dark shadow-lg;
+    }
+
+    /* tables */
+    .table-responsive {
+        @apply overflow-auto;
+    }
+    table {
+        @apply w-full !border-collapse;
+    }
+    table thead tr,
+    table tfoot tr {
+        @apply border-b-0 !bg-[#f6f8fa] dark:!bg-[#1a2941];
+    }
+    table thead tr th,
+    table tfoot tr th,
+    table tbody tr td {
+        @apply py-3 px-4 ltr:text-left rtl:text-right;
+    }
+    table thead tr th,
+    table tfoot tr th {
+        @apply font-semibold;
+    }
+    table tbody tr {
+        @apply border-b !border-white-light/40 dark:!border-[#191e3a];
+    }
+
+    /* perfect scrollbar */
+    .ps__rail-y > .ps__thumb-y {
+        @apply !w-1.5 !bg-[#DDDDDD] dark:!bg-[#2d334c];
+    }
+
+    /* Brand scrollbar, for scroll areas on the ink surface (Bee's transcript).
+       `scrollbar-color` is the standard property and the one Chrome honours —
+       setting it makes Chrome ignore any ::-webkit-scrollbar rules, so don't
+       add those alongside it. `color-scheme` is the fallback: a browser too
+       old for scrollbar-color still draws a DARK default bar instead of a
+       white one glaring against the panel. */
+    .scrollbar-brand {
+        color-scheme: dark;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in oklab, var(--color-brand-gold) 45%, transparent)
+            transparent;
+    }
+
+    .background-color-primary {
+        @apply bg-[#0D1C35];
+    }
+
+    .background-color-secondary {
+        @apply bg-[#ffc700];
+    }
+
+    .text-color-primary {
+        @apply text-[#0D1C35];
+    }
+
+    .page-title {
+        @apply md:text-3xl text-2xl md:px-2 font-bold text-slate-500 md:mb-4;
+    }
+
+    .form-field {
+        @apply w-full rounded-2xl border border-slate-300 font-medium text-sm dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3
+         text-gray-600 dark:text-gray-100 shadow-sm focus:outline-none focus:ring-1
+         focus:ring-slate-500 transition-all duration-150 focus:ring-2 focus:ring-[#050a30]/20;
+    }
+
+    .form-label {
+        @apply text-[13px] font-semibold uppercase text-gray-500 dark:text-gray-300 ps-2;
+    }
+
+    .section {
+        @apply bg-white gap-2 px-8 py-6 relative border rounded-lg border-slate-300 shadow-sm dark:bg-slate-900 mb-7;
+    }
+
+    .icon {
+        @apply dark:!text-[#fafafa];
+    }
+}
+
+/* darwin-ui Dialog: its backdrop centers the dialog with `flex items-center`
+   inside an `overflow-y-auto` box. A dialog taller than the screen (e.g.
+   Create User on a phone) then gets pushed above the top, out of reach.
+   Center with auto margins instead: short dialogs stay centered, tall ones
+   start at the top and scroll normally. */
+.fixed.inset-0.overflow-y-auto.flex.items-center:has(> [role='dialog']) {
+    align-items: flex-start;
+}
+.fixed.inset-0.overflow-y-auto.flex.items-center > [role='dialog'] {
+    margin-block: auto;
+}
+
+/* ── Required / invalid form fields (global) ─────────────────────────────
+   Any input, select, textarea or custom picker button marked
+   aria-invalid="true" gets a red border and a red focus ring. Unlayered on
+   purpose: it overrides the fields' own border-gray-* utility classes.
+   .field-shake is added for a moment on each Submit attempt while the
+   field is still invalid (see hooks/useShakeOnError.ts). */
+[aria-invalid='true'] {
+    border-color: rgb(239 68 68) !important; /* red-500 */
+    background-color: rgb(254 242 242 / 0.6); /* red-50 */
+}
+[aria-invalid='true']:focus,
+[aria-invalid='true']:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(239 68 68 / 0.25) !important;
+}
+
+@keyframes field-shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+.field-shake {
+    animation: field-shake 0.4s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+    .field-shake { animation: none; }
+}
+
+/* ── Sileo notifications above modals ──────────────────────────────────────
+   Sileo puts its toasts at z-index 50, but darwin-ui dialogs and their
+   blurred backdrop sit at 9999 — so an error raised while a modal was open
+   landed behind it. Keep every toast above dialogs, dropdown lists and the
+   Bee panel. Sileo injects its own CSS after ours, hence !important. The top
+   edge also clears a phone's notch / status bar. */
+[data-sileo-viewport] {
+    z-index: 10100 !important;
+}
+[data-sileo-viewport][data-position^='top'] {
+    top: env(safe-area-inset-top, 0px) !important;
+}
+/* Large screens (the laptop layout, same rule as `lg:`): a bigger
+   notification. Sileo sizes its toast in code, so scale the whole viewport
+   (shape and animation intact) from its top center edge. */
+@media (width >= 64rem) and (hover: hover), (width >= 87.5rem) {
+    [data-sileo-viewport] {
+        scale: 1.3;
+        transform-origin: top center;
+    }
+}
+
+/* Touch screens (phones, iPad): Safari zooms the whole page in when a text
+   box under 16px gets focus, and the form is left half off-screen. Text you
+   type into is at least 16px there; laptops keep the design's sizes.
+   Unlayered on purpose, so it wins over text-sm / text-xs utilities. */
+@media (pointer: coarse) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']),
+    textarea,
+    select {
+        font-size: max(16px, 1em);
+    }
+}

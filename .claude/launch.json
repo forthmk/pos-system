@@ -1,0 +1,11 @@
+{
+    "version": "0.0.1",
+    "configurations": [
+        {
+            "name": "pos-web",
+            "runtimeExecutable": "npx",
+            "runtimeArgs": ["-y", "pnpm@11.5.0", "--filter", "@pos-system/web", "exec", "vite", "--port", "5173", "--host", "--strictPort"],
+            "port": 5173
+        }
+    ]
+}

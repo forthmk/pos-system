@@ -70,11 +70,29 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-003 — Web shell: commissary UI kit, PIN sign-in, screen pairing
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/page/web-shell` (cut from QB-002's branch — merge QB-001, QB-002 first) |
+| **Layer** | web + shared wiring |
+| **Status** | 🟠 In Review |
+
+**What was built** (CODEBASE §6):
+- Copied from the commissary: App / store / i18n / theme / tailwind.css + assets/css, `services/api.ts`, form kit, DataTable + Pagination, StatsCard + cards, dialogs + `useConfirm`, Modal, SidePanel, list-page header / search, DateFilter + DatePicker, ui pieces, BlankLayout, Footer, LogoutButton, hooks (`useDebounce`, `useShakeOnError`, `useVisualViewport`, `useKeepDialogsOpen`), utils (`friendlyError` — now also reads the POS API's `{ error }`, `dateOnly`, `exportList` CSV / print, `closestNames`).
+- New for the POS: `AuthProvider` (staff PIN session, paired-screen device sign-in, remembered terminal code), `AuthGuard`, `PermissionGuard` + `usePermission` on the shared `PERMISSIONS`, `Header` (QUICKBITE · terminal code, live clock, who is signed in), `DefaultLayout`, `PinPad`, pages `/login` (PIN sign-in), `/pair` (kiosk / kitchen screen setup), `/home` (who / where / what you can do), 404.
+- `@shared/utils` wired (package exports, Vite alias, tsconfig path); Vite proxies `/api` → `localhost:3000` (`VITE_API_URL=/api`, `.env.example`); `vite-env.d.ts`; deps `sileo`, `react-day-picker`.
+- `.claude/launch.json` (`pos-web`).
+
+**Checked:** web `tsc` + `vite build` · in the browser: signed-out → /login · wrong PIN → “Wrong username or PIN.” · cashier PIN at POS-01 → home with the cashier's permissions · reload keeps the session (`/auth/me`) · Log out · EXPO-01 paired with a device code → “Kitchen Display 01”, kitchen permissions only, no Log out.
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |
 |---|---|---|
-| QB-003 | Web shell: copy layouts, providers, form kit, DataTable, StatsCard, dialogs, hooks, i18n from the commissary (CODEBASE §6) + login page | `addFeature/forthvargas/page/web-shell` |
 | QB-004 | Menu API (kiosk menu in one call, POS menu, sold-out toggle) + Kiosk screens (start, menu, item + extras, cart) | `addFeature/forthvargas/api/menu` · `…/page/kiosk` |
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
 | QB-006 | Kiosk order slip + barcode (thermal-printer `barcode` block), `GET /pos/scan/:code`, `useScannerInput` | `addFeature/forthvargas/api/slip-scan` |

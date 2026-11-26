@@ -25,6 +25,7 @@
       "jwt-decode": "^3.1.2",
       "lucide-react": "^0.511.0",
       "react": "^19.0.0",
+      "react-day-picker": "9.14.0",
       "react-dom": "^19.0.0",
       "react-hook-form": "^7.83.0",
       "react-i18next": "^15.0.0",
@@ -32,6 +33,7 @@
       "react-router-dom": "^7.0.0",
       "react-select": "^5.5.8",
       "recharts": "^3.10.1",
+      "sileo": "0.1.5",
       "typescript": "^5.7.0",
       "zod": "^4.4.3",
       "zustand": "^5.0.6"

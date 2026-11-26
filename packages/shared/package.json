@@ -8,6 +8,7 @@
     "./model": "./dist/model/index.js",
     "./axios": "./dist/axios/index.js",
     "./api": "./dist/api/index.js",
+    "./utils": "./dist/utils/index.js",
     ".": "./dist/index.js"
   },
   "scripts": {
