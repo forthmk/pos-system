@@ -29,3 +29,13 @@ export async function me(request: FastifyRequest, reply: FastifyReply) {
     const principal = request.principal!;
     return sendResult(reply, { token: sign(request, service.refreshToken(principal, request.user)), principal });
 }
+
+// GET /auth/terminals — the store's screens (no token hashes).
+export async function listTerminals(request: FastifyRequest, reply: FastifyReply) {
+    return sendResult(reply, await service.listTerminals(request.principal!.store_id));
+}
+
+// POST /auth/terminals/:id/pair — new device token for a kiosk / KDS, shown once.
+export async function pairTerminal(request: FastifyRequest<{ Params: { id: number } }>, reply: FastifyReply) {
+    return sendResult(reply, await service.pair(request.params.id, request.principal!.store_id), 201);
+}

@@ -136,19 +136,33 @@ When adding a new shared subpath (e.g. a new `utils/` category), it must be wire
 
 ## API architecture (`apps/api`)
 
-Fastify app assembled in `src/app.ts`. Each domain lives under `src/modules/<name>/` as a strict 5-layer stack:
+Fastify app assembled in `src/app.ts`. The backend is split **by system, joined by one order pipeline** (not one module per table):
+
+```
+apps/api/src/
+├── pipeline/             ONE order pipeline, shared by all three screens
+│   └── menu.ts           read the menu (names, prices, extras), sold out / back in
+│                         + pricing.ts · numbering.ts · orders.ts · status.ts (QB-005 →)
+└── modules/              one module per system — the 5 files below each
+    ├── auth/             who is using it: staff PIN, device sign-in, pairing screens
+    ├── kiosk/            the self-service kiosk         → /api/kiosk/*
+    ├── pos/              the cashier register           → /api/pos/*
+    └── kds/              the kitchen display (QB-008)    → /api/kds/*
+```
+
+Each module is the same layered stack:
 
 ```
 <name>.routes.ts       # endpoint definitions, preHandler auth wiring
 <name>.controller.ts   # extracts params/body, calls service, sends reply
-<name>.service.ts      # business logic, validation, error handling
-<name>.repository.ts   # raw Kysely queries
+<name>.service.ts      # the screen's rules; calls src/pipeline/ for anything shared
+<name>.repository.ts   # raw Kysely queries used only by this module (omit when it has none)
 <name>.schema.ts       # TypeBox request/response validation schemas
 ```
 
-New modules are added by copying an existing small module and registering the route name in the `routes` array in `src/app.ts` — the array entry both mounts `modules/<name>/<name>.routes.js` at `/api/<name>` and is the sole registry of active modules.
+Anything two systems need (menu, pricing, numbering, saving orders, status changes) goes in `src/pipeline/`, never copied between modules. A new endpoint goes into the module of the screen that calls it; a new module only for a new system (e.g. `admin`). The `routes` array in `src/app.ts` mounts `modules/<name>/<name>.routes.js` at `/api/<name>` and is the sole registry. Frontend mirrors it: `packages/shared/api/{auth,kiosk,pos,kds}.ts`, `apps/web/src/hooks/api/use{Kiosk,Pos,Kds}.ts`. Each of these folders has a `README.md` (endpoints / files / what's next) — keep it current in the same PR.
 
-**Auth/RBAC** (`src/middleware/authentication.ts`, design §2.2): staff sign in with username + PIN at `POST /api/auth/pin-login` (12 h token); kiosk / KDS screens are paired by an admin (`POST /api/terminals/:id/pair`, token shown once, SHA-256 stored) and sign in with `POST /api/auth/device` (30 d token). Every guarded request re-reads the user / terminal from the DB, so switching someone off or re-pairing a screen takes effect at once. Who may do what is one table, `PERMISSIONS` in `packages/shared/utils/permissions.ts`, used by the API and the web:
+**Auth/RBAC** (`src/middleware/authentication.ts`, design §2.2): staff sign in with username + PIN at `POST /api/auth/pin-login` (12 h token); kiosk / KDS screens are paired by an admin (`POST /api/auth/terminals/:id/pair`, token shown once, SHA-256 stored) and sign in with `POST /api/auth/device` (30 d token). Every guarded request re-reads the user / terminal from the DB, so switching someone off or re-pairing a screen takes effect at once. Who may do what is one table, `PERMISSIONS` in `packages/shared/utils/permissions.ts`, used by the API and the web:
 
 ```ts
 preHandler: [fastify.authenticate],                       // any signed-in user / screen → request.principal

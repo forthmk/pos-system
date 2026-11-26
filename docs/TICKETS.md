@@ -130,6 +130,29 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-004c — Backend by system: auth · kiosk · pos · kds joined by one pipeline
+
+| Field | Value |
+|---|---|
+| **Type** | refactor |
+| **Branch** | `refactor/forthvargas/api/system-modules` (cut from QB-004b's branch) |
+| **Layer** | api + shared + web (imports) + docs |
+| **Status** | 🟠 In Review |
+
+**Why:** one backend area per screen (kiosk, cashier, kitchen) connected by one order pipeline — clearer ownership and far fewer files than one module per table.
+
+**What changed** (no behaviour change except the URLs below):
+- New `src/pipeline/menu.ts` — the menu read (names, prices, extras, sold-out) and sold out / back in, used by kiosk and pos.
+- `modules/kiosk` (menu), new `modules/pos` (menu, sold out), `modules/auth` now also pairs screens; `modules/users`, `terminals`, `menu-items`, `addons` and `kiosk.repository` folded in and removed (25 → 14 API files).
+- URLs: `PATCH /api/pos/menu-items/:id/availability`, `PATCH /api/pos/addons/:id/availability`, `GET /api/pos/menu` (new), `GET /api/auth/terminals`, `POST /api/auth/terminals/:id/pair`.
+- `packages/shared/api`: `auth.ts`, `kiosk.ts`, `pos.ts` (+ barrel); web hook file `useKiosk.ts`.
+- Tests regrouped: `auth.test.ts`, `pipeline-menu.test.ts`, `permissions.test.ts` — 29/29.
+- CLAUDE.md, CODEBASE.md and the design doc's endpoint list updated.
+
+**Checked live:** kiosk menu (ko), pos menu, pos sold out / back in (cashier 200, chef 403), auth terminals (admin 200, cashier 403), pair POS 400, old URLs 404.
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |

@@ -5,5 +5,5 @@ import * as service from './kiosk.service';
 
 // GET /kiosk/menu?lang=en
 export async function menu(request: FastifyRequest<{ Querystring: KioskMenuQuery }>, reply: FastifyReply) {
-    return sendResult(reply, await service.menu(request.principal!.store_id, request.query.lang ?? 'en'));
+    return sendResult(reply, await service.readMenu(request.principal!.store_id, request.query.lang ?? 'en'));
 }

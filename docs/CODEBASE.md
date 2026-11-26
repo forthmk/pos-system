@@ -23,8 +23,9 @@ pos-system/
 │   │       ├── scripts/          migrate.ts · migrate-down.ts · migrator.ts · seed.ts
 │   │       ├── services/database.service.ts   mysql2 pool + Kysely<DB>
 │   │       ├── utils/sendResult.ts            BigInt-safe JSON reply
-│   │       ├── middleware/       (QB-002) authenticate, checkPermission, device token
-│   │       ├── modules/<name>/   5-layer modules (§4)
+│   │       ├── middleware/       authenticate, checkPermission
+│   │       ├── pipeline/         the order pipeline shared by kiosk, pos, kds (§4.1)
+│   │       ├── modules/          auth · kiosk · pos · kds — one per system (§4.1)
 │   │       └── test/             node:test unit tests (§4.4)
 │   └── web/                      React 19 + Vite + Tailwind v4 + TanStack Query
 │       └── src/                  (QB-003) structure in §6
@@ -112,27 +113,45 @@ pnpm db:seed           # demo data; only runs on an empty database
 
 ## 4. API (`apps/api`)
 
-### 4.1 Module = 5 files
+### 4.1 Three systems, one pipeline
 
-Same layering as the commissary (`modules/suppliers/` there is the cleanest template):
+The backend is split by **system** (the screens of design §2.1), joined by one **order pipeline** — fewer, bigger modules instead of one per table:
 
 ```
-src/modules/menu/
-  menu.routes.ts       endpoints + preHandler (auth / permission)
-  menu.controller.ts   read params/body → call service → sendResult(reply, data)
-  menu.service.ts      business rules; throws ApiError(msg, status, field)
-  menu.repository.ts   Kysely queries only (no rules)
-  menu.schema.ts       TypeBox request / response schemas
+apps/api/src/
+├── pipeline/             ONE order pipeline, shared by all three screens
+│   └── menu.ts           read the menu (names, prices, extras), sold out / back in
+│                         + pricing.ts · numbering.ts · orders.ts · status.ts (QB-005 →)
+└── modules/              one module per system — the 5 files below each
+    ├── auth/             who is using it: staff PIN, device sign-in, pairing screens
+    ├── kiosk/            the self-service kiosk         → /api/kiosk/*
+    ├── pos/              the cashier register           → /api/pos/*
+    └── kds/              the kitchen display (QB-008)    → /api/kds/*
 ```
 
-Register it by adding `'menu'` to `routes` in `src/app.ts` → mounted at `/api/menu`. That array is the only registry.
+Each module keeps the commissary's layers (`modules/suppliers/` there is the cleanest template):
+
+```
+src/modules/pos/
+  pos.routes.ts       endpoints + preHandler (auth / permission)
+  pos.controller.ts   read params/body → call service → sendResult(reply, data)
+  pos.service.ts      the screen's rules; calls src/pipeline/ for anything shared
+  pos.repository.ts   Kysely queries only this module uses (left out when it has none)
+  pos.schema.ts       TypeBox request / response schemas
+```
+
+- **Where does new code go?** An endpoint goes into the module of the screen that calls it (kiosk / pos / kds / auth). Logic two systems need goes into `src/pipeline/` — never copied between modules.
+- `src/pipeline/*.ts` keep their SQL in one exported `queries` object, so tests can swap a query (see `test/pipeline-menu.test.ts`).
+- The `routes` array in `src/app.ts` mounts `modules/<name>/<name>.routes.js` at `/api/<name>` and is the only registry.
+- **Every separated folder has a `README.md`** (`pipeline/`, each `modules/*`, `packages/shared/api/`, `hooks/api/`, each `pages/*`) listing its endpoints / files and what is still to come. Change the folder → update its README in the same PR.
+- The frontend mirrors the split: `packages/shared/api/{auth,kiosk,pos,kds}.ts` and `apps/web/src/hooks/api/use{Kiosk,Pos,Kds}.ts`.
 
 ### 4.2 Copy from the commissary (QB-002)
 
 | Commissary file | Copy to | Change |
 |---|---|---|
 | `apps/api/src/middleware/authentication.ts` | `src/middleware/authentication.ts` ✅ QB-002 | Became role-based: `checkPermission('orders.void')` checks the caller's role (admin / manager / cashier / chef) or screen type (kiosk / kds) against `PERMISSIONS` in `packages/shared/utils/permissions.ts`. Kept the "re-read the caller from the DB on every request" behaviour. |
-| device-token login (`auth/device`) | `src/modules/auth/` ✅ QB-002 | kiosk / KDS stay signed in with a device token; paired with `POST /api/terminals/:id/pair` |
+| device-token login (`auth/device`) | `src/modules/auth/` ✅ QB-002 | kiosk / KDS stay signed in with a device token; paired with `POST /api/auth/terminals/:id/pair` |
 | `apps/api/src/test/test-utils.ts` (`mockModule`) | `src/test/test-utils.ts` ✅ QB-002 | as is |
 | `apps/api/src/test/suppliers.test.ts` | pattern for every `src/test/<module>.test.ts` | — |
 | `apps/api/src/utils/fileProcessor.ts`, `upload.ts`, `r2Client.ts` | `src/utils/` | only when menu photos are uploaded (QB-004) |
@@ -141,8 +160,8 @@ Register it by adding `'menu'` to `routes` in `src/app.ts` → mounted at `/api/
 
 | Piece | Where | Ticket |
 |---|---|---|
-| Order pricing engine (lines, extras, discounts, VAT, centavos) — design §7.6 | `packages/shared/utils/pricing.ts` (pure, used by api for truth and by web for previews) | QB-005 |
-| Order number (`SELECT … FOR UPDATE` on `order_sequences`) — §7.7 | `modules/orders/orders.repository.ts` | QB-005 |
+| Order pricing engine (lines, extras, discounts, VAT, centavos) — design §7.6 | `src/pipeline/pricing.ts` (the truth; the kiosk's `cart.ts` only previews) | QB-005 |
+| Order number (`SELECT … FOR UPDATE` on `order_sequences`) — §7.7 | `src/pipeline/numbering.ts` | QB-005 |
 | Slip barcode `store + number + slip code + check digit` — §7.11 | `packages/shared/utils/slip-code.ts` | QB-006 |
 | Live feed (WebSocket `/ws`, events in §8.2) | `src/live/` + `@fastify/websocket` | QB-008 |
 
@@ -165,7 +184,7 @@ Every service test mocks its repository with `mockModule` and asserts `err.statu
 |---|---|---|
 | `model/` | TypeBox schemas + `Static<>` types (`PaginationSchema`, `MenuItem`, `Order`…) | api (via `dist`) and web (source) |
 | `utils/` | pure helpers: `StrictObject`, pricing, slip code | api (via `dist`) and web (source) |
-| `api/` | endpoint definitions per module: `menuApi(client).list()` | web |
+| `api/` | endpoint definitions, one file per backend module: `auth.ts`, `kiosk.ts`, `pos.ts`, `kds.ts` (`import { kioskApi } from '@shared/api'`) | web |
 | `axios/` | `createApi()` — base URL from `VITE_API_URL`, JWT from localStorage | web |
 
 - After editing `model/` or `utils/`: `pnpm --filter @pos-system/shared build` (the api reads `dist/`).
@@ -184,7 +203,7 @@ src/
 ├── providers/     AuthProvider · AuthGuard · PermissionGuard
 ├── store/         Redux: themeConfigSlice ONLY (UI settings, never server data)
 ├── services/api.ts   createApi() verbs — nothing else goes here
-├── hooks/         useX.ts  +  hooks/api/use<Module>.ts (TanStack Query)
+├── hooks/         useX.ts  +  hooks/api/use{Kiosk,Pos,Kds}.ts (TanStack Query, one per backend module)
 ├── components/    shared UI (table below)
 ├── pages/         Kiosk/ · Register/ · Kitchen/ · Reports/ · Admin/ · Login/
 └── utils/
@@ -223,7 +242,7 @@ Copy from `commissary/apps/web/src/` to the same path here. **✅ All of the tab
 | Commissary | Use in the POS |
 |---|---|
 | `services/api.ts` | as is — the only axios entry |
-| `hooks/api/README.md` pattern (`useX` / `useCreateX` with `invalidateQueries`) | every `hooks/api/use<Module>.ts` |
+| `hooks/api/README.md` pattern (`useX` / `useCreateX` with `invalidateQueries`) | `hooks/api/use{Kiosk,Pos,Kds}.ts` |
 | `providers/AuthProvider.tsx`, `AuthGuard.tsx`, `PermissionGuard.tsx`, `hooks/useAuth.ts` | staff PIN login; kiosk / KDS device login |
 | `hooks/usePermission.ts` | wraps shared `can(actor, 'orders.void')` → show / hide buttons (the API still checks) |
 | `hooks/useDebounce.ts` | search boxes |
