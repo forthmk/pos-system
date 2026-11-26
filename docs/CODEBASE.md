@@ -131,10 +131,9 @@ Register it by adding `'menu'` to `routes` in `src/app.ts` → mounted at `/api/
 
 | Commissary file | Copy to | Change |
 |---|---|---|
-| `apps/api/src/middleware/authentication.ts` | `src/middleware/authentication.ts` | `checkPermission(module, action)` becomes role-based: admin / manager / cashier / chef (design §2.2). Keep the "re-read the user from the DB on every request" behaviour so a disabled user is locked out at once. |
-| `apps/api/src/middleware/permissionGroups.ts` | `src/middleware/permissionGroups.ts` | reader groups, e.g. `MENU_READERS` = kiosk + pos + admin |
-| device-token login (`auth/device`) | `src/modules/auth/` | kiosk / KDS stay signed in with a device token (design §2.2 note) |
-| `apps/api/src/test/test-utils.ts` (`mockModule`) | `src/test/test-utils.ts` | as is |
+| `apps/api/src/middleware/authentication.ts` | `src/middleware/authentication.ts` ✅ QB-002 | Became role-based: `checkPermission('orders.void')` checks the caller's role (admin / manager / cashier / chef) or screen type (kiosk / kds) against `PERMISSIONS` in `packages/shared/utils/permissions.ts`. Kept the "re-read the caller from the DB on every request" behaviour. |
+| device-token login (`auth/device`) | `src/modules/auth/` ✅ QB-002 | kiosk / KDS stay signed in with a device token; paired with `POST /api/terminals/:id/pair` |
+| `apps/api/src/test/test-utils.ts` (`mockModule`) | `src/test/test-utils.ts` ✅ QB-002 | as is |
 | `apps/api/src/test/suppliers.test.ts` | pattern for every `src/test/<module>.test.ts` | — |
 | `apps/api/src/utils/fileProcessor.ts`, `upload.ts`, `r2Client.ts` | `src/utils/` | only when menu photos are uploaded (QB-004) |
 
@@ -226,7 +225,7 @@ Copy from `commissary/apps/web/src/` to the same path here.
 | `services/api.ts` | as is — the only axios entry |
 | `hooks/api/README.md` pattern (`useX` / `useCreateX` with `invalidateQueries`) | every `hooks/api/use<Module>.ts` |
 | `providers/AuthProvider.tsx`, `AuthGuard.tsx`, `PermissionGuard.tsx`, `hooks/useAuth.ts` | staff PIN login; kiosk / KDS device login |
-| `hooks/usePermission.ts` | `can('orders','void')` → show / hide buttons (the API still checks) |
+| `hooks/usePermission.ts` | wraps shared `can(actor, 'orders.void')` → show / hide buttons (the API still checks) |
 | `hooks/useDebounce.ts` | search boxes |
 | `hooks/useShakeOnError.ts` | wrong PIN, “Scan again” |
 | `hooks/useVisualViewport.ts` | on-screen keyboard on the kiosk / tablet |

@@ -5,11 +5,12 @@ import jwt from '@fastify/jwt';
 import sensible from '@fastify/sensible';
 import { checkDatabaseConnection, setDbLogger } from './services/database.service';
 import ApiError from './apiError';
+import authentication from './middleware/authentication';
 
 // ─── Module registry ───────────────────────────────────────────────────────────
 // Add each module name here as it is built. The entry mounts the module's
 // routes.js at /api/<name> and is the sole registry of active modules.
-const routes: string[] = [];
+const routes: string[] = ['auth', 'terminals'];
 
 export async function buildApp(): Promise<FastifyInstance> {
   const fastify = Fastify({
@@ -41,27 +42,19 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   // ── Dev: auto-inject admin JWT when absent ───────────────────────────────────
+  // Signs in as seeded user 1 (admin). It is still re-read from the DB like any
+  // other token, so a dev DB without that user gets a 401, not a fake admin.
   if (process.env.NODE_ENV === 'dev') {
     fastify.addHook('onRequest', async (request) => {
       if (!request.headers.authorization) {
-        const token = fastify.jwt.sign({
-          user_id: 1,
-          name: 'Dev Admin',
-          role: 'admin',
-        });
+        const token = fastify.jwt.sign({ kind: 'staff', sub: 1, store_id: 1, role: 'admin', terminal_id: null });
         request.headers.authorization = `Bearer ${token}`;
       }
     });
   }
 
-  // ── Auth decorator ────────────────────────────────────────────────────────────
-  fastify.decorate('authenticate', async (request: any, reply: any) => {
-    try {
-      await request.jwtVerify();
-    } catch {
-      reply.status(401).send({ error: 'Unauthorized' });
-    }
-  });
+  // ── Auth: fastify.authenticate / fastify.checkPermission(permission) ─────────
+  await fastify.register(authentication);
 
   // ── Global error handler ──────────────────────────────────────────────────────
   fastify.setErrorHandler((error, _request, reply) => {
@@ -70,6 +63,10 @@ export async function buildApp(): Promise<FastifyInstance> {
         error: error.message,
         field: error.field ?? undefined,
       });
+    }
+    // Schema validation (TypeBox) and other client errors keep their 4xx.
+    if (error.statusCode && error.statusCode < 500) {
+      return reply.status(error.statusCode).send({ error: error.message });
     }
     fastify.log.error(error);
     return reply.status(500).send({ error: 'Internal server error' });

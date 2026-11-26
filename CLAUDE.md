@@ -148,15 +148,16 @@ Fastify app assembled in `src/app.ts`. Each domain lives under `src/modules/<nam
 
 New modules are added by copying an existing small module and registering the route name in the `routes` array in `src/app.ts` — the array entry both mounts `modules/<name>/<name>.routes.js` at `/api/<name>` and is the sole registry of active modules.
 
-**Auth/RBAC**: `fastify.authenticate` (verifies the JWT only) gates most routes. Fine-grained authorization goes through `fastify.checkPermission(module, action?)` (decorated in `src/middleware/authentication.ts`), which reads a permissions map embedded in the JWT at login — no DB round-trip per request.
+**Auth/RBAC** (`src/middleware/authentication.ts`, design §2.2): staff sign in with username + PIN at `POST /api/auth/pin-login` (12 h token); kiosk / KDS screens are paired by an admin (`POST /api/terminals/:id/pair`, token shown once, SHA-256 stored) and sign in with `POST /api/auth/device` (30 d token). Every guarded request re-reads the user / terminal from the DB, so switching someone off or re-pairing a screen takes effect at once. Who may do what is one table, `PERMISSIONS` in `packages/shared/utils/permissions.ts`, used by the API and the web:
 
 ```ts
-preHandler: [fastify.authenticate!, fastify.checkPermission!('products', 'create')],
+preHandler: [fastify.authenticate],                       // any signed-in user / screen → request.principal
+preHandler: [fastify.checkPermission('orders.void')],     // + that role / screen type may do it
 ```
 
-`fastify.checkRoles(allowedRoles[])` is a coarser role-based alternative also available.
+401 = sign in again, 403 = not allowed. 5 wrong PINs lock a username for 5 minutes (`utils/loginThrottle.ts`).
 
-In `NODE_ENV=dev`, `app.ts`'s preHandler hook auto-injects a fake admin JWT and `x-api-key` header when absent — routes exercised without an explicit token will silently authenticate as `admin` in dev.
+In `NODE_ENV=dev`, `app.ts`'s onRequest hook signs requests that have no token in as seeded user 1 (admin) — routes exercised without a token silently act as admin in dev. Run with `NODE_ENV=production` to test 401s.
 
 Errors are raised as `ApiError` (`src/apiError.ts`) with a `statusCode`; tests assert on `err.statusCode`.
 

@@ -47,11 +47,33 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-002 — Auth: staff PIN sign-in, roles, kiosk / KDS device sign-in
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/api/auth-roles` (cut from QB-001's branch — merge QB-001 first) |
+| **Layer** | api + shared |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §2.2, §8.1):
+- `packages/shared/utils/permissions.ts` — `PERMISSIONS` table (role / screen type → what it may do) and `can()`; used by the API now and by the web's `usePermission` in QB-003.
+- `packages/shared/model/auth.model.ts` + `api/auth.ts` — `LoginBody`, `DeviceLoginBody`, `AuthStaff`, `AuthDevice`; `authApi.pinLogin / device / me`, `terminalApi.list / pair`.
+- `src/middleware/authentication.ts` — `fastify.authenticate`, `fastify.checkPermission(permission)`; caller re-read from the DB on every request (switched-off user or re-paired screen → 401).
+- `POST /api/auth/pin-login` (username + PIN + terminal code; staff can't sign in on the kiosk), `POST /api/auth/device`, `GET /api/auth/me`.
+- `GET /api/terminals`, `POST /api/terminals/:id/pair` (admin; kiosk / KDS only; token shown once, SHA-256 stored).
+- `utils/loginThrottle.ts` — 5 wrong PINs lock a username for 5 minutes (429).
+- Error handler keeps 4xx for schema validation errors (was 500); dev auto-admin token uses the new token shape.
+- `src/test/test-utils.ts` (from the commissary) + 26 tests: permissions, auth, terminals.
+
+**Checked:** 26/26 tests · `tsc` shared + api · live API: wrong PIN 401, missing PIN 400, cashier login + /me, cashier → terminals 403, no token 401, admin pair POS 400 / KIOSK 201, kiosk device login + /me, kiosk → terminals 403, old kiosk JWT and token after re-pair 401, staff on kiosk 403.
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |
 |---|---|---|
-| QB-002 | Auth: staff PIN login, roles, `authenticate` / `checkPermission` (from the commissary), kiosk / KDS device tokens, test-utils | `addFeature/forthvargas/api/auth-roles` |
 | QB-003 | Web shell: copy layouts, providers, form kit, DataTable, StatsCard, dialogs, hooks, i18n from the commissary (CODEBASE §6) + login page | `addFeature/forthvargas/page/web-shell` |
 | QB-004 | Menu API (kiosk menu in one call, POS menu, sold-out toggle) + Kiosk screens (start, menu, item + extras, cart) | `addFeature/forthvargas/api/menu` · `…/page/kiosk` |
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
