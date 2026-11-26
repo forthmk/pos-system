@@ -14,6 +14,11 @@ export async function placeOrder(request: FastifyRequest<{ Body: PlaceKioskOrder
     return sendResult(reply, order, created ? 201 : 200);
 }
 
+// POST /kiosk/orders/:id/slip-printed
+export async function slipPrinted(request: FastifyRequest<{ Params: { id: number } }>, reply: FastifyReply) {
+    return sendResult(reply, await service.markSlipPrinted(request.principal!, request.params.id));
+}
+
 // GET /kiosk/orders/:id
 export async function order(request: FastifyRequest<{ Params: { id: number } }>, reply: FastifyReply) {
     return sendResult(reply, await service.getOrder(request.principal!, request.params.id));

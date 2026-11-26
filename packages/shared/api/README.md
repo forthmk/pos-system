@@ -5,8 +5,8 @@ One file per backend module (`apps/api/src/modules/*`), re-exported by `index.ts
 | File | Export | Backend |
 |---|---|---|
 | `auth.ts` | `authApi` — `pinLogin`, `device`, `me`, `terminals`, `pairTerminal` | `modules/auth` |
-| `kiosk.ts` | `kioskApi` — `menu(lang)`, `placeOrder(body)`, `order(id)` | `modules/kiosk` |
-| `pos.ts` | `posApi` — `menu`, `setItemAvailability`, `setAddonAvailability` | `modules/pos` |
+| `kiosk.ts` | `kioskApi` — `menu(lang)`, `placeOrder(body)`, `order(id)`, `slipPrinted(id)` | `modules/kiosk` |
+| `pos.ts` | `posApi` — `menu`, `setItemAvailability`, `setAddonAvailability`, `scan(code)`, `release(orderId)` | `modules/pos` |
 | `kds.ts` | `kdsApi` (QB-008) | `modules/kds` |
 
 ```ts

@@ -7,4 +7,5 @@ export const kioskApi = {
     menu: (lang: Language) => get<KioskMenu>('/kiosk/menu', { lang }),
     placeOrder: (body: PlaceKioskOrderBody) => post<OrderSummary>('/kiosk/orders', body),
     order: (id: number) => get<OrderSummary>(`/kiosk/orders/${id}`),
+    slipPrinted: (id: number) => post(`/kiosk/orders/${id}/slip-printed`),
 };

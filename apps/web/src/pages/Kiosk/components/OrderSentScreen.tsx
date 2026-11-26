@@ -1,17 +1,45 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check } from 'lucide-react';
+import { Check, Printer } from 'lucide-react';
+import { kioskApi } from '@shared/api';
 import type { OrderSummary } from '@shared/model';
+import { formatSlipCode } from '@shared/utils';
+import Barcode from '../../../components/pos/Barcode';
+import { printSlip, slipHtml } from '../../../utils/printSlip';
 import { peso } from '../cart';
 
 // UI reference 6 — "Order Sent!": the order number, dining mode, payment,
 // items, total and time, then "Start New Order (Ns)" counting down to a fresh
 // start screen. A kiosk order waits for payment at the counter (design
-// decision 1), so it says so; the printed slip with its barcode is QB-006.
+// decision 1): the order slip with its barcode prints by itself (once per
+// order), and the barcode also shows here so a 2D scanner can read the screen
+// if the printer is out of paper (§7.10). "Reprint slip" prints it again.
 
-const OrderSentScreen = ({ order, resetSeconds, onDone }: { order: OrderSummary; resetSeconds: number; onDone: () => void }) => {
+const printed = new Set<number>(); // survives React's dev double-mount
+
+interface Props {
+    order: OrderSummary;
+    resetSeconds: number;
+    payWithinMinutes: number;
+    terminalCode: string;
+    onDone: () => void;
+}
+
+const OrderSentScreen = ({ order, resetSeconds, payWithinMinutes, terminalCode, onDone }: Props) => {
     const { t } = useTranslation();
     const [left, setLeft] = useState(resetSeconds);
+
+    const print = () =>
+        printSlip(slipHtml(order, { storeName: 'QUICKBITE', terminalCode, expiryMinutes: payWithinMinutes }))
+            .then(() => kioskApi.slipPrinted(order.id))
+            .catch(() => undefined);
+
+    useEffect(() => {
+        if (!order.slip_code || printed.has(order.id)) return;
+        printed.add(order.id);
+        void print();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [order.id]);
 
     useEffect(() => {
         if (left <= 0) {
@@ -55,7 +83,18 @@ const OrderSentScreen = ({ order, resetSeconds, onDone }: { order: OrderSummary;
                         ))}
                     </dl>
 
-                    {payAtCounter && <p className="mt-5 text-base font-semibold text-slate-600">{t('kiosk.bringNumber')}</p>}
+                    {order.slip_code && (
+                        <div className="mt-5 flex flex-col items-center">
+                            <Barcode value={order.slip_code} height={56} />
+                            <span className="mt-1 font-mono text-sm font-bold text-slate-700">{formatSlipCode(order.slip_code)}</span>
+                        </div>
+                    )}
+                    {payAtCounter && <p className="mt-4 text-base font-semibold text-slate-600">{t('kiosk.bringSlip', { minutes: payWithinMinutes })}</p>}
+                    {order.slip_code && (
+                        <button type="button" onClick={() => void print()} className="mt-4 flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-base font-bold text-slate-700 ring-1 ring-slate-200">
+                            <Printer className="h-5 w-5" /> {t('kiosk.reprintSlip')}
+                        </button>
+                    )}
 
                     <button type="button" onClick={onDone} className="mt-6 w-full rounded-3xl bg-slate-900 py-5 text-xl font-extrabold text-white">
                         {t('kiosk.startNewOrder', { seconds: left })}

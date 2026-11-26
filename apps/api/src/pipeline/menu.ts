@@ -86,7 +86,7 @@ export const queries = {
         db.updateTable('addons').set({ is_available: available ? 1 : 0, updated_at: sql`NOW()` }).where('id', '=', id).execute(),
 };
 
-const KIOSK_SETTINGS = ['kiosk_idle_seconds', 'kiosk_reset_seconds', 'kiosk_online_payment'];
+const KIOSK_SETTINGS = ['kiosk_idle_seconds', 'kiosk_reset_seconds', 'kiosk_online_payment', 'awaiting_payment_expiry_minutes'];
 
 export async function readMenu(storeId: number, lang: Language): Promise<KioskMenu> {
     const [categories, items, addons, settingRows] = await Promise.all([
@@ -131,6 +131,8 @@ export async function readMenu(storeId: number, lang: Language): Promise<KioskMe
             idle_seconds: Number(setting.kiosk_idle_seconds ?? 60),
             reset_seconds: Number(setting.kiosk_reset_seconds ?? 10),
             online_payment: setting.kiosk_online_payment === 'on',
+            // "Bring this slip to the counter within N minutes" (design §5.9).
+            pay_within_minutes: Number(setting.awaiting_payment_expiry_minutes ?? 30),
         },
     };
 }

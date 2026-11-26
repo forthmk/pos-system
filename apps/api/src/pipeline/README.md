@@ -14,7 +14,7 @@ POS  ──┘                                         └─▶ status (prepari
 | `pricing.ts` | Line totals, discounts (percent / fixed voucher / Senior · PWD with group share), VAT split, total due — in centavos, pure (no DB) | §7.6 | ✅ |
 | `numbering.ts` | Next order number with `SELECT … FOR UPDATE` on `order_sequences` inside the order's transaction → `ORD-000749`; `displayNo` → `000749` | §7.7 | ✅ |
 | `orders.ts` | `placeOrder`: same client_ref → the saved order; merge identical lines; check items / extras (409 ITEM_UNAVAILABLE); price; 409 TOTAL_CHANGED; one transaction (number, order, lines, extras, first event). `getOrder` | §5.8, §7.2–7.5 | ✅ (discounts + payment rows with the register, QB-007) |
-| `status.ts` | `logEvent` into `order_status_events` ✅; allowed transitions (pay, bump, recall, cancel, void) arrive with the screens that make them | §4.4 | QB-006 → QB-008 |
+| `status.ts` | `ALLOWED` moves (§4.4), `moveStatus` (only while still `from` → else 409; stamps the time; clears a register lock; logs), `logEvent` | §4.4 | ✅ |
 
 ## Rules
 

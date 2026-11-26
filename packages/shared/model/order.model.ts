@@ -49,5 +49,15 @@ export interface OrderSummary {
     vat_exempt_sales: number;
     total_due: number;
     placed_at: string;
+    /** Kiosk orders: the 12-digit slip barcode (design §7.11), else null. */
+    slip_code: string | null;
     lines: { sku: string; name: string; quantity: number; unit_price: number; addons: { name: string; price: number }[]; line_total: number }[];
 }
+
+/** GET /api/pos/scan/:code (design §7.11). */
+export type ScanResult =
+    | { result: 'ready'; order: OrderSummary; locked_until: string }
+    | { result: 'already_paid'; order_no: string; status: OrderStatus }
+    | { result: 'expired'; order: OrderSummary }
+    | { result: 'voided'; order_no: string }
+    | { result: 'in_use'; order_no: string; terminal: string };

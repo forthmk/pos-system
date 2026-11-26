@@ -2,7 +2,10 @@ import type { Language, PlaceKioskOrderBody } from '@pos-system/shared';
 import ApiError from '../../apiError';
 import * as menu from '../../pipeline/menu';
 import * as orders from '../../pipeline/orders';
+import { logEvent } from '../../pipeline/status';
+import { db } from '../../services/database.service';
 import type { Principal } from '../../types/fastify';
+import * as repository from './kiosk.repository';
 
 // The self-service kiosk (design §5.1). Everything it shares with the cashier
 // and the kitchen — the menu, pricing, numbering, saving orders — goes
@@ -41,3 +44,13 @@ export async function placeOrder(principal: Principal, body: PlaceKioskOrderBody
 
 /** The Order Sent screen reads its order back (only this kiosk's store). */
 export const getOrder = (principal: Principal, id: number) => orders.getOrder(id, kioskTerminal(principal).store_id);
+
+/** The order slip came out of the kiosk printer (design §5.9). */
+export async function markSlipPrinted(principal: Principal, id: number) {
+    const kiosk = kioskTerminal(principal);
+    const order = await orders.getOrder(id, kiosk.store_id);
+    if (order.source !== 'kiosk') throw new ApiError('Only kiosk orders have a slip.', 400);
+    await repository.markSlipPrinted(id);
+    await logEvent(db, { order_id: id, event_type: 'slip_printed', from_status: null, to_status: null, actor_type: 'kiosk', terminal_id: kiosk.id });
+    return { printed: true };
+}

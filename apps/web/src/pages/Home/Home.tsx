@@ -1,5 +1,5 @@
-import { Navigate } from 'react-router-dom';
-import { CheckCircle2, MonitorSmartphone, UserRound } from 'lucide-react';
+import { Link, Navigate } from 'react-router-dom';
+import { CheckCircle2, MonitorSmartphone, ScanBarcode, UserRound } from 'lucide-react';
 import { PERMISSIONS, type Permission } from '@shared/utils';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermission } from '../../hooks/usePermission';
@@ -54,6 +54,21 @@ const Home = () => {
                     </p>
                 </div>
             </section>
+
+            {can('orders.settle') && (
+                <Link
+                    to="/register"
+                    className="flex items-center gap-4 rounded-3xl bg-slate-900 p-5 text-white shadow-sm transition hover:bg-slate-800"
+                >
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500">
+                        <ScanBarcode className="h-7 w-7" />
+                    </span>
+                    <span>
+                        <span className="block text-lg font-extrabold">Cashier Register</span>
+                        <span className="block text-sm text-slate-300">Scan kiosk slips</span>
+                    </span>
+                </Link>
+            )}
 
             <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
                 <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-slate-500">What you can do here</h2>

@@ -4,6 +4,7 @@ import type { Language, MenuItem, OrderSummary } from '@shared/model';
 import ConfirmDialog from '../../components/dialogs/ConfirmDialog';
 import { LoadingState } from '../../components/ui/Progress';
 import { useKioskMenu, usePlaceKioskOrder } from '../../hooks/api/useKiosk';
+import { useAuth } from '../../hooks/useAuth';
 import { useIdleReset } from '../../hooks/useIdleReset';
 import { uuid } from '../../utils/uuid';
 import { cartTotals, initialKioskState, kioskReducer, priceLines } from './cart';
@@ -31,6 +32,7 @@ const errorCode = (e: unknown) => (e as { response?: { data?: { details?: { code
 
 const Kiosk = () => {
     const { t, i18n } = useTranslation();
+    const { principal } = useAuth();
     const [state, dispatch] = useReducer(kioskReducer, initialKioskState);
     const [screen, setScreen] = useState<Screen>({ name: 'start' });
     const [confirmCancel, setConfirmCancel] = useState(false);
@@ -95,7 +97,15 @@ const Kiosk = () => {
 
     let page: React.ReactNode;
     if (screen.name === 'sent') {
-        page = <OrderSentScreen order={screen.order} resetSeconds={menu.data?.settings.reset_seconds ?? 10} onDone={startOver} />;
+        page = (
+            <OrderSentScreen
+                order={screen.order}
+                resetSeconds={menu.data?.settings.reset_seconds ?? 10}
+                payWithinMinutes={menu.data?.settings.pay_within_minutes ?? 30}
+                terminalCode={principal?.kind === 'device' ? principal.code : 'KIOSK'}
+                onDone={startOver}
+            />
+        );
     } else if (screen.name === 'start' || !state.mode) {
         page = (
             <StartScreen

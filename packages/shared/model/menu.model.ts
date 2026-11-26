@@ -45,7 +45,7 @@ export interface KioskMenu {
     language: Language;
     categories: MenuCategory[];
     /** Kiosk timings and options from the store settings (design appendix). */
-    settings: { idle_seconds: number; reset_seconds: number; online_payment: boolean };
+    settings: { idle_seconds: number; reset_seconds: number; online_payment: boolean; pay_within_minutes: number };
 }
 
 // Sold out / back in (design decision 19): PATCH …/:id/availability.

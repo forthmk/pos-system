@@ -61,11 +61,12 @@
     "totalToPay": "Total to pay",
     "totalPaid": "Total paid",
     "time": "Time",
-    "bringNumber": "Show this number at the counter to pay.",
     "startNewOrder": "Start New Order ({{seconds}}s)",
     "sending": "Sending your order…",
     "itemUnavailable": "Sorry — something in your cart just sold out. Please check your cart.",
     "pricesChanged": "Prices have changed. Please check your cart and try again.",
-    "orderFailed": "We couldn't send your order. Please try again or ask our staff."
+    "orderFailed": "We couldn't send your order. Please try again or ask our staff.",
+    "bringSlip": "Bring your slip to the counter within {{minutes}} minutes to pay.",
+    "reprintSlip": "Reprint slip"
   }
 }

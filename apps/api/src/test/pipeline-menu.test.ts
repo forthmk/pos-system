@@ -79,7 +79,7 @@ describe('pipeline/menu · readMenu', () => {
     });
 
     test('kiosk settings, with the design defaults for missing keys', async () => {
-        assert.deepEqual((await menu.readMenu(1, 'en')).settings, { idle_seconds: 90, reset_seconds: 10, online_payment: false });
+        assert.deepEqual((await menu.readMenu(1, 'en')).settings, { idle_seconds: 90, reset_seconds: 10, online_payment: false, pay_within_minutes: 30 });
     });
 });
 

@@ -6,6 +6,7 @@ const PinLogin = lazy(() => import('../pages/Login/PinLogin'));
 const PairScreen = lazy(() => import('../pages/Login/PairScreen'));
 const Home = lazy(() => import('../pages/Home/Home'));
 const Kiosk = lazy(() => import('../pages/Kiosk/Kiosk'));
+const Register = lazy(() => import('../pages/Register/Register'));
 const Error404 = lazy(() => import('../pages/Error404'));
 
 // layout 'default' = navbar + signed-in only; 'kiosk' = full screen + signed-in
@@ -25,5 +26,7 @@ export const routes: AppRoute[] = [
     { path: '/home', element: <Home />, layout: 'default' },
     // The self-service kiosk (design §5.1): a paired kiosk opens here.
     { path: '/kiosk', element: <Kiosk />, layout: 'kiosk', permission: 'orders.create' },
+    // The cashier register (design §5.3–5.4, §5.10).
+    { path: '/register', element: <Register />, layout: 'default', permission: 'orders.settle' },
     { path: '*', element: <Error404 />, layout: 'blank' },
 ];

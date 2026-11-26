@@ -176,12 +176,32 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-006 — Kiosk order slip with barcode + cashier slip scan
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/api/slip-scan` (cut from QB-005's branch) |
+| **Layer** | api + shared + web |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.9, §5.10, §7.11, decision 21):
+- `packages/shared/utils/slip-code.ts` — `slipCode` (store + order number + slip code + Luhn check digit → `010007485278`), `formatSlipCode`, `parseSlipCode`; order summaries now carry `slip_code`.
+- `pipeline/status.ts` — `ALLOWED` moves (§4.4) and `moveStatus` (only while still `from`, stamps, clears the lock, logs).
+- `GET /api/pos/scan/:code` — ready (locked to this register) / already paid / expired (cancelled by the system after 30 min) / voided / in use at another register; `POST /api/pos/orders/:id/release`; `POST /api/kiosk/orders/:id/slip-printed`.
+- Kiosk: the 80 mm order slip prints by itself on Order Sent (browser print, Code 128 via `jsbarcode`; Chrome `--kiosk-printing` skips the dialog), Reprint slip, barcode also on screen.
+- Register (`/register`, linked from home): `useScannerInput` (12 digits + Enter in < 50 ms gaps, anywhere on the page), typed codes with dashes, check digit checked before asking the server, receipt panel, lock time, CLEAR, notices for paid / expired / voided / another register.
+- Tests: slip code, scan outcomes, status moves — 57/57.
+
+**Checked live:** ORD-000003 → slip code 010000038603, slip printed recorded, scan → ready on POS-01, typed with dashes, wrong check digit → 400, manager without a register → 400, kiosk → 403, 40-minute-old order → expired + cancelled (system event), release. In the browser: simulated scanner burst → order on the receipt panel; wrong digit → message; expired order notice; slip rendered (matches the design sample).
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |
 |---|---|---|
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
-| QB-006 | Kiosk order slip + barcode (thermal-printer `barcode` block), `GET /pos/scan/:code`, `useScannerInput` | `addFeature/forthvargas/api/slip-scan` |
 | QB-007 | Cashier Register: shifts, ticket, discounts, tender, settle scanned orders, receipt | `addFeature/forthvargas/page/register` |
 | QB-008 | Live feed (WebSocket) + Kitchen Display (complete / recall / clear served) | `addFeature/forthvargas/page/kitchen-display` |
 | QB-009 | Reports: shift sales, tender reconciliation, audit log, close shift → Z-reading, CSV export | `addFeature/forthvargas/page/reports` |

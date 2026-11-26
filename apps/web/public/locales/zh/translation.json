@@ -61,11 +61,12 @@
     "totalToPay": "应付金额",
     "totalPaid": "已付金额",
     "time": "时间",
-    "bringNumber": "请到柜台出示此号码付款。",
     "startNewOrder": "开始新订单（{{seconds}} 秒）",
     "sending": "正在送出订单…",
     "itemUnavailable": "抱歉，购物车中有餐点刚刚售完，请检查购物车。",
     "pricesChanged": "价格已更新，请检查购物车后再试。",
-    "orderFailed": "订单无法送出，请重试或向店员寻求协助。"
+    "orderFailed": "订单无法送出，请重试或向店员寻求协助。",
+    "bringSlip": "请在 {{minutes}} 分钟内携带小票到柜台付款。",
+    "reprintSlip": "重新打印小票"
   }
 }

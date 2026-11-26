@@ -13,7 +13,8 @@ components/
   KioskTopBar.tsx    IN • Dine-In ⇄, language, cart count
   ItemScreen.tsx     qty − / +, extras, Add to Order
   CartScreen.tsx     lines, qty (0 removes), GCash / Cash / Card, total, Proceed Order + errors
-  OrderSentScreen.tsx  number, Please pay at the counter, mode, payment, items, total, time, countdown
+  OrderSentScreen.tsx  number, mode, payment, items, total, time, barcode, countdown; prints the order slip
+                     once (utils/printSlip.ts, 80 mm, Code 128) + Reprint slip
   QtyStepper.tsx · MenuIcon.tsx
 ```
 

@@ -61,11 +61,12 @@
     "totalToPay": "결제할 금액",
     "totalPaid": "결제 금액",
     "time": "시간",
-    "bringNumber": "카운터에서 이 번호를 보여주고 결제해 주세요.",
     "startNewOrder": "새 주문 시작 ({{seconds}}초)",
     "sending": "주문을 보내는 중…",
     "itemUnavailable": "죄송합니다. 장바구니의 상품이 방금 품절되었어요. 장바구니를 확인해 주세요.",
     "pricesChanged": "가격이 변경되었어요. 장바구니를 확인하고 다시 시도해 주세요.",
-    "orderFailed": "주문을 보내지 못했어요. 다시 시도하거나 직원에게 문의해 주세요."
+    "orderFailed": "주문을 보내지 못했어요. 다시 시도하거나 직원에게 문의해 주세요.",
+    "bringSlip": "{{minutes}}분 안에 주문표를 카운터로 가져와 결제해 주세요.",
+    "reprintSlip": "주문표 다시 인쇄"
   }
 }

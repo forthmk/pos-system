@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto';
 import type { Insertable, Transaction } from 'kysely';
-import type { DiningMode, Language, OrderLineInput, OrderSummary, PaymentMethod } from '@pos-system/shared';
+import { slipCode, type DiningMode, type Language, type OrderLineInput, type OrderSummary, type PaymentMethod } from '@pos-system/shared';
 import ApiError from '../apiError';
 import type { DB, OrderItemAddons, OrderItems, Orders } from '../config/database/types.gen';
 import { db } from '../services/database.service';
@@ -42,7 +42,14 @@ export const queries = {
             .where('mia.menu_item_id', 'in', itemIds)
             .execute(),
     byClientRef: (clientRef: string) => db.selectFrom('orders').select(['id', 'store_id']).where('client_ref', '=', clientRef).executeTakeFirst(),
-    order: (id: number) => db.selectFrom('orders').selectAll().where('id', '=', id).executeTakeFirst(),
+    order: (id: number) =>
+        db
+            .selectFrom('orders as o')
+            .innerJoin('stores as s', 's.id', 'o.store_id')
+            .selectAll('o')
+            .select('s.code as store_code')
+            .where('o.id', '=', id)
+            .executeTakeFirst(),
     orderItems: (orderId: number) =>
         db
             .selectFrom('order_items')
@@ -150,6 +157,7 @@ export async function getOrder(id: number, storeId: number): Promise<OrderSummar
         vat_exempt_sales: Number(o.vat_exempt_sales),
         total_due: Number(o.total_due),
         placed_at: new Date(o.placed_at as unknown as string).toISOString(),
+        slip_code: o.slip_token ? slipCode(o.store_code, o.order_number, o.slip_token) : null,
         lines: items.map((i) => ({
             sku: i.sku,
             name: i.name,
