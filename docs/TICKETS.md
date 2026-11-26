@@ -108,11 +108,32 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-004b — Kiosk screens: start, menu, item + extras, cart
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/page/kiosk` (cut from QB-004a's branch) |
+| **Layer** | web |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.1, UI references 1–5):
+- `/kiosk` (full-screen `KioskLayout`, permission `orders.create`); a paired kiosk opening `/home` is sent there.
+- Start: IN (eat here · table service) / OUT (grab & go · packed bag), English / 中文 / 한국어.
+- Menu: categories on the left, item cards (icon, name, price, + Add; sold out greyed), top bar (IN • Dine-In ⇄, EN / 中文 / 한국, cart count), Cancel (asks first when the cart has items) + View Cart (count, total).
+- Item: qty − / +, extras to tick (sold-out ones disabled), “Add to Order ₱(price + extras) × qty”.
+- Cart: “Name (+ extras)”, “₱each • ₱line”, qty − / + (0 removes), GCash / Cash / Card, Total order. **Proceed Order is wired in QB-005** (the button appears once placing orders exists).
+- `pages/Kiosk/cart.ts`: picks only (item ID, qty, extra IDs) — same item + same extras merge into one line; prices read from the menu in centavos; lines that went sold out are flagged.
+- `useIdleReset` (“Still there?” → start over), `useKioskMenu` (per language, refreshed every minute), kiosk text in en / zh / ko (`public/locales`).
+
+**Checked in the browser (tablet 768×1024):** start screen · IN → menu · Fries ×3 = ₱195 · Spicy Burger ×3 + Crispy Fries (S) = ₱555 · Iced Cola Fizz ×2 + Crispy Fries (S) = ₱160 · cart = 8 items, ₱910 (same as the mock-up) · 中文 switches everything and keeps the cart · Cancel → confirm → fresh start in English.
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |
 |---|---|---|
-| QB-004b | Kiosk screens: start (IN / OUT, language), menu, item + extras, cart | `addFeature/forthvargas/page/kiosk` |
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
 | QB-006 | Kiosk order slip + barcode (thermal-printer `barcode` block), `GET /pos/scan/:code`, `useScannerInput` | `addFeature/forthvargas/api/slip-scan` |
 | QB-007 | Cashier Register: shifts, ticket, discounts, tender, settle scanned orders, receipt | `addFeature/forthvargas/page/register` |

@@ -2,7 +2,129 @@
   "hash": "23eff2b8",
   "configHash": "f101504d",
   "lockfileHash": "d7075e3e",
-  "browserHash": "0ede2041",
-  "optimized": {},
-  "chunks": {}
+  "browserHash": "2513af80",
+  "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../../../node_modules/.pnpm/react@19.3.0/node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "44112321",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../../../node_modules/.pnpm/react@19.3.0/node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "a1bab9c3",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../../../node_modules/.pnpm/react-dom@19.3.0_react@19.3.0/node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "8ff7990e",
+      "needsInterop": true
+    },
+    "@tanstack/react-query": {
+      "src": "../../../../node_modules/.pnpm/@tanstack+react-query@5.104.0_react@19.3.0/node_modules/@tanstack/react-query/build/modern/index.js",
+      "file": "@tanstack_react-query.js",
+      "fileHash": "b61625c2",
+      "needsInterop": false
+    },
+    "@pikoloo/darwin-ui": {
+      "src": "../../../../node_modules/.pnpm/@pikoloo+darwin-ui@2.1.0_@date-fns+tz@1.5.0_@types+react-dom@19.3.0_@types+react@19.3.0_db6938a54c53da0d1f38b99fdf21c7a8/node_modules/@pikoloo/darwin-ui/dist/index.mjs",
+      "file": "@pikoloo_darwin-ui.js",
+      "fileHash": "63245dbb",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../../../node_modules/.pnpm/react-router-dom@7.18.4_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "ed69778a",
+      "needsInterop": false
+    },
+    "react-redux": {
+      "src": "../../../../node_modules/.pnpm/react-redux@9.3.0_@types+react@19.3.0_react@19.3.0_redux@5.0.1/node_modules/react-redux/dist/react-redux.mjs",
+      "file": "react-redux.js",
+      "fileHash": "bf9d2140",
+      "needsInterop": false
+    },
+    "sileo": {
+      "src": "../../../../node_modules/.pnpm/sileo@0.1.5_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/sileo/dist/index.mjs",
+      "file": "sileo.js",
+      "fileHash": "64028f2c",
+      "needsInterop": false
+    },
+    "i18next": {
+      "src": "../../../../node_modules/.pnpm/i18next@24.2.3_typescript@5.9.3/node_modules/i18next/dist/esm/i18next.js",
+      "file": "i18next.js",
+      "fileHash": "d33fc5e1",
+      "needsInterop": false
+    },
+    "i18next-http-backend": {
+      "src": "../../../../node_modules/.pnpm/i18next-http-backend@3.0.6/node_modules/i18next-http-backend/esm/index.js",
+      "file": "i18next-http-backend.js",
+      "fileHash": "79fc9e61",
+      "needsInterop": false
+    },
+    "i18next-browser-languagedetector": {
+      "src": "../../../../node_modules/.pnpm/i18next-browser-languagedetector@8.2.1/node_modules/i18next-browser-languagedetector/dist/esm/i18nextBrowserLanguageDetector.js",
+      "file": "i18next-browser-languagedetector.js",
+      "fileHash": "f2d491ee",
+      "needsInterop": false
+    },
+    "react-i18next": {
+      "src": "../../../../node_modules/.pnpm/react-i18next@15.7.4_i18next@24.2.3_typescript@5.9.3__react-dom@19.3.0_react@19.3.0__react@19.3.0_typescript@5.9.3/node_modules/react-i18next/dist/es/index.js",
+      "file": "react-i18next.js",
+      "fileHash": "38c49652",
+      "needsInterop": false
+    },
+    "@reduxjs/toolkit": {
+      "src": "../../../../node_modules/.pnpm/@reduxjs+toolkit@2.13.0_react-redux@9.3.0_@types+react@19.3.0_react@19.3.0_redux@5.0.1__react@19.3.0/node_modules/@reduxjs/toolkit/dist/redux-toolkit.modern.mjs",
+      "file": "@reduxjs_toolkit.js",
+      "fileHash": "e720bba2",
+      "needsInterop": false
+    },
+    "jwt-decode": {
+      "src": "../../../../node_modules/.pnpm/jwt-decode@3.1.2/node_modules/jwt-decode/build/jwt-decode.esm.js",
+      "file": "jwt-decode.js",
+      "fileHash": "2dbe21ce",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../../../node_modules/.pnpm/lucide-react@0.511.0_react@19.3.0/node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "b52b5283",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "browser-ponyfill-OEBJWC4N": {
+      "file": "browser-ponyfill-OEBJWC4N.js"
+    },
+    "esm-YMV4X4EZ": {
+      "file": "esm-YMV4X4EZ.js"
+    },
+    "chunk-YX2SETD3": {
+      "file": "chunk-YX2SETD3.js"
+    },
+    "chunk-5VZWFB3B": {
+      "file": "chunk-5VZWFB3B.js"
+    },
+    "chunk-WR327JW3": {
+      "file": "chunk-WR327JW3.js"
+    },
+    "chunk-QUOQQ7PC": {
+      "file": "chunk-QUOQQ7PC.js"
+    },
+    "chunk-7IEJ3WBO": {
+      "file": "chunk-7IEJ3WBO.js"
+    },
+    "chunk-WE65ZARB": {
+      "file": "chunk-WE65ZARB.js"
+    },
+    "chunk-7BGEIFR7": {
+      "file": "chunk-7BGEIFR7.js"
+    },
+    "chunk-SNAQBZPT": {
+      "file": "chunk-SNAQBZPT.js"
+    }
+  }
 }

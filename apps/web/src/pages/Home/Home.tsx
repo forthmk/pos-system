@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom';
 import { CheckCircle2, MonitorSmartphone, UserRound } from 'lucide-react';
 import { PERMISSIONS, type Permission } from '@shared/utils';
 import { useAuth } from '../../hooks/useAuth';
@@ -32,6 +33,8 @@ const Home = () => {
     const { principal } = useAuth();
     const { can } = usePermission();
     if (!principal) return null;
+    // A paired kiosk has one job: the ordering screen.
+    if (principal.kind === 'device' && principal.type === 'kiosk') return <Navigate to="/kiosk" replace />;
 
     const isStaff = principal.kind === 'staff';
     const allowed = (Object.keys(PERMISSIONS) as Permission[]).filter(can);

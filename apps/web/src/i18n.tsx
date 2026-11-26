@@ -16,6 +16,8 @@ i18n
     // for all options read: https://www.i18next.com/overview/configuration-options
     .init({
         fallbackLng: themeConfig.locale || 'en',
+        // The kiosk's three languages (design: EN / 中文 / 한국어).
+        supportedLngs: ['en', 'zh', 'ko'],
         debug: false,
         load: 'languageOnly'
     });
