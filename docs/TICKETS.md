@@ -2,7 +2,7 @@
 
 Every branch has a ticket here before code is written. Design: [QuickBite-System-Design.docx](QuickBite-System-Design.docx) · Code guide: [CODEBASE.md](CODEBASE.md).
 
-The October 2026 branches (`addFeature/forthvargas/migration/initial-schema`, `…/api/auth`, `…/api/categories`, `…/api/menu-items`, `…/api/tables`, `…/api/orders`, `…/api/payments`) were built for an earlier, simpler design (restaurant tables, inventory). They were never merged into `development` and are kept untouched for reference; QuickBite starts again from `development` with the tickets below.
+The October 2026 branches (`addFeature/forthvargas/migration/initial-schema`, `…/api/auth`, `…/api/categories`, `…/api/menu-items`, `…/api/tables`, `…/api/orders`, `…/api/payments`) were built for an earlier, simpler design (restaurant tables, inventory). PRs #1–#4 merged some of them into `development` in October; `fixed/forthvargas/migration/revert-october-work` undoes those merges (merge it **before QB-001**). The code stays in git history and on its branches.
 
 ---
 
@@ -89,11 +89,30 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-004a — Menu API: kiosk menu in one call, sold out / back in
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/api/menu` (cut from QB-003's branch) |
+| **Layer** | api + shared |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.1 kiosk rules, §8.1, decision 19):
+- `GET /api/kiosk/menu?lang=en|zh|ko` (`menu.view`): active categories → items → the extras each item offers; names in the kiosk language with English fallback; extras priced with `price_override` when set; sold-out items / extras kept and marked `available: false`; empty categories left out; kiosk settings (idle / reset seconds, online payment).
+- `PATCH /api/menu-items/:id/availability` and `PATCH /api/addons/:id/availability` (`menu.availability` — cashier, manager, admin).
+- Shared `menu.model.ts` (`KioskMenu`, `MenuCategory`, `MenuItem`, `MenuAddon`, `LANGUAGES`) and `kioskApi`, `menuItemApi`, `addonApi`.
+- Tests: kiosk menu assembly (6), availability (4) — 36/36 in total.
+
+**Checked live:** Korean menu (5 categories, translated names, ₱ prices), B5 extras, `lang=fr` → 400, cashier marks B4 sold out → kiosk sees it, chef → 403, back in, empty body → 400.
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |
 |---|---|---|
-| QB-004 | Menu API (kiosk menu in one call, POS menu, sold-out toggle) + Kiosk screens (start, menu, item + extras, cart) | `addFeature/forthvargas/api/menu` · `…/page/kiosk` |
+| QB-004b | Kiosk screens: start (IN / OUT, language), menu, item + extras, cart | `addFeature/forthvargas/page/kiosk` |
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
 | QB-006 | Kiosk order slip + barcode (thermal-printer `barcode` block), `GET /pos/scan/:code`, `useScannerInput` | `addFeature/forthvargas/api/slip-scan` |
 | QB-007 | Cashier Register: shifts, ticket, discounts, tender, settle scanned orders, receipt | `addFeature/forthvargas/page/register` |

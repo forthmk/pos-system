@@ -10,7 +10,7 @@ import authentication from './middleware/authentication';
 // ─── Module registry ───────────────────────────────────────────────────────────
 // Add each module name here as it is built. The entry mounts the module's
 // routes.js at /api/<name> and is the sole registry of active modules.
-const routes: string[] = ['auth', 'terminals'];
+const routes: string[] = ['auth', 'terminals', 'kiosk', 'menu-items', 'addons'];
 
 export async function buildApp(): Promise<FastifyInstance> {
   const fastify = Fastify({
