@@ -5,3 +5,4 @@ export * from './order.model';
 export * from './pos.model';
 export * from './kds.model';
 export * from './report.model';
+export * from './admin.model';

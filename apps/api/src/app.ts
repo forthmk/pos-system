@@ -12,8 +12,9 @@ import websocket from '@fastify/websocket';
 // Add each module name here as it is built. The entry mounts the module's
 // routes.js at /api/<name> and is the sole registry of active modules.
 // auth = who is using the system; kiosk / pos / kds = the three screens, joined by src/pipeline/;
-// live = the WebSocket feed that tells every screen what just changed.
-const routes: string[] = ['auth', 'kiosk', 'pos', 'kds', 'live'];
+// live = the WebSocket feed that tells every screen what just changed;
+// admin = setup: menu, discounts, vouchers, staff, screens, settings.
+const routes: string[] = ['auth', 'kiosk', 'pos', 'kds', 'live', 'admin'];
 
 export async function buildApp(): Promise<FastifyInstance> {
   const fastify = Fastify({

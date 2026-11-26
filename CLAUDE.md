@@ -149,7 +149,8 @@ apps/api/src/
     ├── kiosk/            the self-service kiosk         → /api/kiosk/*
     ├── pos/              the cashier register           → /api/pos/*
     ├── kds/              the kitchen display            → /api/kds/*
-    └── live/             the live feed (WebSocket)      → /api/live
+    ├── live/             the live feed (WebSocket)      → /api/live
+    └── admin/            store setup (menu, staff, …)   → /api/admin/*
 ```
 
 Each module is the same layered stack:

@@ -313,13 +313,33 @@ Max **2 PRs merged per day** into `development`.
 
 **Checked in the browser (1440×900, test manager at POS-01):** new shift → two walk-ins appear live (₱550.00, 1 IN · 1 OUT, GCash 50% · Cash 50%) → Void ORD-000015: wrong PIN shows the error, right PIN → VOID, struck through, ₱275.00, GCash 0% → Close Shift: expected ₱2,275.00, ₱2,270 shows Short −₱5.00, ₱2,275 saved as Z-0002 (Balanced) → the picker lists Z-0002 and Z-0001 → register shows Menu | Reports; test shift reopened with ₱2,000.
 
+
+### QB-010a — Admin API
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/api/admin` (cut from QB-009b's branch) |
+| **Layer** | api + shared |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §8.1 `/api/admin/*`; README in `modules/admin/`; no migration):
+- **Menu**: categories, items (SKU, price, bestseller, combo, sort, extras with price override), extras; Chinese / Korean names (empty = English); kitchen station per category.
+- **Discounts** (name, order, on / off; Student % editable, Senior / PWD 20% fixed) and **vouchers** (managers too).
+- **Staff**: add, role, PIN reset (bcrypt), switch off — always one active admin, nobody switches themselves off.
+- **Screens**: add / edit terminals and kitchen stations, unpair a lost tablet.
+- **Settings**: kitchen timers, kiosk idle / reset, slip expiry, register lock, scanner gap, with limits (`SETTINGS_SPEC`); VAT / Senior rates shown, not editable.
+- Nothing deleted (switched off); store ownership checks; plain 409 for duplicates; live `menu.changed`, `settings.changed`.
+- Shared `admin.model.ts`, `adminApi`. Tests: `admin.test.ts` (109/109).
+
+**Checked on the dev DB:** admin reads the whole menu (5 categories with Chinese names, 4 extras, EXPO-01) → duplicate SKU B1 409 → cashier / manager on the menu 403, manager on vouchers 200 → Senior rate change 400 → demoting the only admin 409, switching yourself off 409 → kitchen delay 6 min: the kitchen API reports 6 at once → set back to 5; out-of-range 400; unknown keys (e.g. `vat_rate`) ignored.
+
 ---
 
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |
 |---|---|---|
-| QB-010a | Admin API: menu / extras / translations / prices, staff, discounts, vouchers, pairing terminals, store settings | `addFeature/forthvargas/api/admin` |
 | QB-010b | Admin screens for the above | `addFeature/forthvargas/page/admin` |
 
 ---

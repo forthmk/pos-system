@@ -12,6 +12,8 @@
  *   order.voided           paid order voided + refunded (manager)    → kitchen, board, reports
  *   shift.closed           shift closed, Z-reading saved             → register, reports
  *   menu.availability      item / extra sold out or back             → kiosk, register
+ *   menu.changed           admin edited the menu / extras            → kiosk, register
+ *   settings.changed       admin changed store settings              → kiosk, kitchen
  *
  * Every event carries `server_time` so a screen with a wrong clock still
  * shows the right timers.
@@ -28,7 +30,9 @@ export type LiveEventName =
     | 'order.cancelled'
     | 'order.voided'
     | 'shift.closed'
-    | 'menu.availability';
+    | 'menu.availability'
+    | 'menu.changed'
+    | 'settings.changed';
 
 /** The bit of a WebSocket the hub needs (easy to fake in tests). */
 export interface LiveSocket {
