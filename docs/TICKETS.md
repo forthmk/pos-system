@@ -197,6 +197,25 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-007a — Register API: shifts, discounts, walk-in orders, settle kiosk orders
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/api/register` (cut from QB-006's branch) |
+| **Layer** | api + shared |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.3–5.4, §5.7, §7.4–7.6, decisions 11–12, 17, 23):
+- `pipeline/discounts.ts` (Student %, Senior / PWD with ID + name + group share, vouchers with dates / uses / min spend), `pipeline/payments.ts` (cash ≥ total → change; GCash / card reference), `pipeline/orders.ts` — paid walk-in orders, `settleOrder`, order summaries with discount + payment.
+- `modules/pos`: shifts (current, open), discount types, voucher check, next number, Kiosk # list, walk-in order, settle, cancel (README lists them).
+- Shared `pos.model.ts` (`OpenShiftBody`, `DiscountInput`, `PaymentInput`, `PosOrderBody`, `SettleBody`, `KioskQueueItem`, …).
+- Tests: discounts (7), payments (3), walk-in (4), settle (3) — 74/74.
+
+**Checked live:** no shift → 409; open ₱2,000; open again → 409; design example B (Student, ₱340 → ₱306, cash ₱500 → change ₱194, VAT ₱32.79) and C (Senior → ₱242.86, VAT removed ₱36.43, GCash ref) on the real DB; Senior without ID → 400; cash short → 422; kiosk ₱910 order in the Kiosk # list → scanned → settled cash ₱1,000 (change ₱90) → preparing; settle again → 409; scan again → already paid; unpaid kiosk order cancelled.
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |

@@ -51,6 +51,11 @@ export interface OrderSummary {
     placed_at: string;
     /** Kiosk orders: the 12-digit slip barcode (design §7.11), else null. */
     slip_code: string | null;
+    paid_at: string | null;
+    /** The discount on this order (design §7.6), else null. */
+    discount: { code: string; label: string; rate: number; base_amount: number; vat_removed: number; amount: number; id_number: string | null; holder_name: string | null } | null;
+    /** The settled payment, else null. */
+    payment: { method: PaymentMethod; amount: number; tendered: number | null; change_due: number | null; reference_no: string | null } | null;
     lines: { sku: string; name: string; quantity: number; unit_price: number; addons: { name: string; price: number }[]; line_total: number }[];
 }
 
