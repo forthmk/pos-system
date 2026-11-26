@@ -5,8 +5,7 @@ import { cartTotals, lineName, peso, type DiningMode, type PaymentMethod, type P
 
 // UI reference 5: Cart — IN • Dine-In, N items; each line "Name (+ extras)",
 // "₱each • ₱line", qty − / + (0 removes it); Mode of payment GCash / Cash /
-// Card; Total order; Proceed Order. `onProceed` is wired when placing orders
-// lands (QB-005) — without it the button isn't shown.
+// Card; Total order; Proceed Order (sends the order — design §7.2).
 
 const PAYMENTS: PaymentMethod[] = ['gcash', 'cash', 'card'];
 
@@ -18,6 +17,8 @@ const CartScreen = ({
     onQuantity,
     onMenu,
     onProceed,
+    sending,
+    error,
 }: {
     mode: DiningMode;
     lines: PricedLine[];
@@ -25,7 +26,9 @@ const CartScreen = ({
     onPayment: (p: PaymentMethod) => void;
     onQuantity: (key: string, quantity: number) => void;
     onMenu: () => void;
-    onProceed?: () => void;
+    onProceed: () => void;
+    sending: boolean;
+    error: string;
 }) => {
     const { t } = useTranslation();
     const { count, total } = cartTotals(lines);
@@ -105,16 +108,19 @@ const CartScreen = ({
                         <span className="text-xl font-extrabold text-slate-900">{t('kiosk.total')}</span>
                         <span className="text-4xl font-extrabold text-orange-600">{peso(total)}</span>
                     </div>
-                    {onProceed && (
-                        <button
-                            type="button"
-                            onClick={onProceed}
-                            disabled={lines.some((l) => l.unavailable)}
-                            className="w-full rounded-3xl bg-orange-500 py-5 text-2xl font-extrabold text-white shadow-lg shadow-orange-500/30 disabled:opacity-50"
-                        >
-                            {t('kiosk.proceed')}
-                        </button>
+                    {error && (
+                        <p role="alert" className="rounded-2xl bg-rose-50 px-4 py-3 text-center text-base font-bold text-rose-700 ring-1 ring-rose-200">
+                            {error}
+                        </p>
                     )}
+                    <button
+                        type="button"
+                        onClick={onProceed}
+                        disabled={sending || lines.some((l) => l.unavailable)}
+                        className="w-full rounded-3xl bg-orange-500 py-5 text-2xl font-extrabold text-white shadow-lg shadow-orange-500/30 disabled:opacity-50"
+                    >
+                        {sending ? t('kiosk.sending') : t('kiosk.proceed')}
+                    </button>
                 </div>
             )}
         </div>

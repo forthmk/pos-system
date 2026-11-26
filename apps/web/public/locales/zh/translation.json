@@ -49,6 +49,23 @@
     "switchMode": "切换 IN / OUT",
     "decreaseOne": "减一份",
     "increaseOne": "加一份",
-    "proceed": "确认下单"
+    "proceed": "确认下单",
+    "orderSent": "订单已送出！",
+    "orderNumber": "订单 #{{number}}",
+    "payAtCounter": "请到柜台付款",
+    "preparingNow": "正在准备",
+    "yourNumber": "您的订单号码",
+    "diningMode": "用餐方式",
+    "payment": "付款",
+    "itemsOrdered": "点餐数量",
+    "totalToPay": "应付金额",
+    "totalPaid": "已付金额",
+    "time": "时间",
+    "bringNumber": "请到柜台出示此号码付款。",
+    "startNewOrder": "开始新订单（{{seconds}} 秒）",
+    "sending": "正在送出订单…",
+    "itemUnavailable": "抱歉，购物车中有餐点刚刚售完，请检查购物车。",
+    "pricesChanged": "价格已更新，请检查购物车后再试。",
+    "orderFailed": "订单无法送出，请重试或向店员寻求协助。"
   }
 }

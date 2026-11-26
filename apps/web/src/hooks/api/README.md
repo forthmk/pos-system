@@ -4,7 +4,7 @@ One file per backend module, the same split as `packages/shared/api`:
 
 | File | Hooks | Calls |
 |---|---|---|
-| `useKiosk.ts` | `useKioskMenu(lang)` — refreshed every minute so sold-out items grey out | `kioskApi` |
+| `useKiosk.ts` | `useKioskMenu(lang)` — refreshed every minute so sold-out items grey out · `usePlaceKioskOrder()` | `kioskApi` |
 | `usePos.ts` | (QB-007) | `posApi` |
 | `useKds.ts` | (QB-008) | `kdsApi` |
 

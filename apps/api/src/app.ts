@@ -63,6 +63,8 @@ export async function buildApp(): Promise<FastifyInstance> {
       return reply.status(error.statusCode ?? 500).send({
         error: error.message,
         field: error.field ?? undefined,
+        // e.g. { code: 'ITEM_UNAVAILABLE', items } or { code: 'TOTAL_CHANGED', total_due }
+        details: error.value ?? undefined,
       });
     }
     // Schema validation (TypeBox) and other client errors keep their 4xx.

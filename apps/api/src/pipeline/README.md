@@ -11,10 +11,10 @@ POS  ──┘                                         └─▶ status (prepari
 | File | Does | Design | Status |
 |---|---|---|---|
 | `menu.ts` | Reads the menu (categories → items → extras, names in en / zh / ko with English fallback, extra price = `price_override ?? price`, sold-out kept with `available: false`); sold out / back in for items and extras | §5.1, §7.6, decision 19 | ✅ |
-| `pricing.ts` | Line totals, merging lines, discounts (Student, Senior / PWD, voucher), VAT split, total due — in centavos | §7.6 | QB-005 |
-| `numbering.ts` | Next order number with `SELECT … FOR UPDATE` on `order_sequences` → `ORD-000749` | §7.7 | QB-005 |
-| `orders.ts` | Save / load orders, lines, extras, discount, payment in one transaction | §6.4, §7.3 | QB-005 |
-| `status.ts` | Allowed status changes (awaiting payment → preparing → completed, recall, cancel, void) + `order_status_events` | §4.4 | QB-005 / QB-008 |
+| `pricing.ts` | Line totals, discounts (percent / fixed voucher / Senior · PWD with group share), VAT split, total due — in centavos, pure (no DB) | §7.6 | ✅ |
+| `numbering.ts` | Next order number with `SELECT … FOR UPDATE` on `order_sequences` inside the order's transaction → `ORD-000749`; `displayNo` → `000749` | §7.7 | ✅ |
+| `orders.ts` | `placeOrder`: same client_ref → the saved order; merge identical lines; check items / extras (409 ITEM_UNAVAILABLE); price; 409 TOTAL_CHANGED; one transaction (number, order, lines, extras, first event). `getOrder` | §5.8, §7.2–7.5 | ✅ (discounts + payment rows with the register, QB-007) |
+| `status.ts` | `logEvent` into `order_status_events` ✅; allowed transitions (pay, bump, recall, cancel, void) arrive with the screens that make them | §4.4 | QB-006 → QB-008 |
 
 ## Rules
 

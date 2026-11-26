@@ -153,6 +153,29 @@ Max **2 PRs merged per day** into `development`.
 
 ---
 
+### QB-005 — Placing orders: pricing, numbering, orders pipeline + kiosk Proceed Order
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/api/place-order` (cut from QB-004c's branch; `api/orders` is taken by an October branch) |
+| **Layer** | api + shared + web |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.8, §7.2–7.7):
+- `pipeline/pricing.ts` — lines, extras, discounts (percent, fixed voucher, Senior / PWD with group share), VAT split, total due in centavos; tested on the design's worked examples (₱910, ₱306, ₱242.86, ₱315.71).
+- `pipeline/numbering.ts` — `SELECT … FOR UPDATE` on `order_sequences` inside the order transaction → `ORD-000001`.
+- `pipeline/orders.ts` — `placeOrder` (same client_ref → saved order; merge identical lines; 409 ITEM_UNAVAILABLE for sold-out / not-offered items and extras; 409 TOTAL_CHANGED; one transaction for number, order, lines, extras, first status event; duplicate-key race handled) and `getOrder`.
+- `pipeline/status.ts` — `logEvent` into `order_status_events`.
+- `POST /api/kiosk/orders` (paired kiosk only; saved as awaiting payment, 3-digit slip code) and `GET /api/kiosk/orders/:id`; the error handler now returns `details` (`{ code, … }`).
+- Shared `order.model.ts` (`PlaceKioskOrderBody`, `OrderSummary`), `kioskApi.placeOrder / order`.
+- Kiosk: Proceed Order (one client_ref per cart, `utils/uuid.ts` works on http LAN addresses), errors shown in the customer's language, Order Sent screen (number, “Please pay at the counter”, mode, payment, items, total, time, countdown).
+- Tests: pricing (6), orders pipeline (9) — 44/44.
+
+**Checked live:** mock-up cart → ORD-000001, ₱910, VAT ₱97.50, awaiting payment, names / extras saved, slip code; same tap → same order; total ₱900 → 409; fries sold out → 409; cashier on the kiosk endpoint → 403; qty 0 → 400; numbers not used by refused orders. In the browser as a paired KIOSK-01: OUT → Double Smash Burger → Cash → Proceed → “Order Sent! #000002 • Please pay at the counter” → countdown back to start.
+
+---
+
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |

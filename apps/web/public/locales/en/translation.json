@@ -49,6 +49,23 @@
     "switchMode": "Switch between IN and OUT",
     "decreaseOne": "One less",
     "increaseOne": "One more",
-    "proceed": "Proceed Order"
+    "proceed": "Proceed Order",
+    "orderSent": "Order Sent!",
+    "orderNumber": "Order #{{number}}",
+    "payAtCounter": "Please pay at the counter",
+    "preparingNow": "Preparing Now",
+    "yourNumber": "Your order number",
+    "diningMode": "Dining mode",
+    "payment": "Payment",
+    "itemsOrdered": "Items ordered",
+    "totalToPay": "Total to pay",
+    "totalPaid": "Total paid",
+    "time": "Time",
+    "bringNumber": "Show this number at the counter to pay.",
+    "startNewOrder": "Start New Order ({{seconds}}s)",
+    "sending": "Sending your order…",
+    "itemUnavailable": "Sorry — something in your cart just sold out. Please check your cart.",
+    "pricesChanged": "Prices have changed. Please check your cart and try again.",
+    "orderFailed": "We couldn't send your order. Please try again or ask our staff."
   }
 }
