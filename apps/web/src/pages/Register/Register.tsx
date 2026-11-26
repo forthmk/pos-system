@@ -18,6 +18,7 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { useConfirm } from '../../hooks/useConfirm';
 import { useScannerInput } from '../../hooks/useScannerInput';
+import RegisterTabs from '../../components/pos/RegisterTabs';
 import { LoadingState } from '../../components/ui/Progress';
 import { useLiveFeed } from '../../hooks/useLiveFeed';
 import { friendlyError } from '../../utils/friendlyError';
@@ -174,6 +175,7 @@ const Register = () => {
                         </p>
                     )}
                 </div>
+                <RegisterTabs />
                 {notice && (
                     <div
                         role="status"

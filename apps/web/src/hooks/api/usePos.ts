@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { posApi } from '@shared/api';
-import type { OpenShiftBody, PosOrderBody, SettleBody } from '@shared/model';
+import type { CloseShiftBody, OpenShiftBody, PosOrderBody, SettleBody, VoidOrderBody } from '@shared/model';
 
 // The cashier register's server data (design §5.3–5.4, §5.10).
 
@@ -57,3 +57,47 @@ export const useScanSlip = () => {
 
 // CLEAR / Next Customer without paying: unlock the scanned order.
 export const useReleaseOrder = () => useMutation({ mutationFn: async (orderId: number) => (await posApi.release(orderId)).data });
+
+/* ── reports, close shift, void (design §5.7, §7.9) ────────────────────── */
+
+/** Recent shifts for the report's shift picker (a cashier: own shifts). */
+export const useShifts = (enabled = true) => useQuery({ queryKey: ['pos-shifts'], queryFn: async () => (await posApi.shifts()).data, enabled });
+
+/** Shift Sales & Z-Reading figures — refreshed live as orders are paid or voided. */
+export const useShiftReport = (shiftId: number | null) =>
+    useQuery({
+        queryKey: ['pos-report', shiftId],
+        queryFn: async () => (await posApi.shiftReport(shiftId!)).data,
+        enabled: shiftId !== null,
+        refetchInterval: 60_000,
+        placeholderData: (previous) => previous,
+    });
+
+const useAfterReportChange = () => {
+    const qc = useQueryClient();
+    return () => {
+        for (const queryKey of [['pos-report'], ['pos-shifts'], ['pos-shift'], ['pos-next-number']]) void qc.invalidateQueries({ queryKey });
+    };
+};
+
+/** Close Shift → the saved Z-reading (the report of the closed shift). */
+export const useCloseShift = () => {
+    const after = useAfterReportChange();
+    return useMutation({ mutationFn: async (v: { shiftId: number; body: CloseShiftBody }) => (await posApi.closeShift(v.shiftId, v.body)).data, onSuccess: after });
+};
+
+/** Void + refund with a manager's username + PIN. */
+export const useVoidOrder = () => {
+    const after = useAfterReportChange();
+    return useMutation({ mutationFn: async (v: { orderId: number; body: VoidOrderBody }) => (await posApi.voidOrder(v.orderId, v.body)).data, onSuccess: after });
+};
+
+/** Export CSV / Z-Read → the file's name (from the server) and text. */
+export const useExportShiftCsv = () =>
+    useMutation({
+        mutationFn: async (shiftId: number) => {
+            const res = await posApi.exportShiftCsv(shiftId);
+            const name = /filename="([^"]+)"/.exec(String(res.headers?.['content-disposition'] ?? ''))?.[1] ?? `shift-${shiftId}.csv`;
+            return { filename: name, csv: String(res.data) };
+        },
+    });

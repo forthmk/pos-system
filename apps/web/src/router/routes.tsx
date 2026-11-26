@@ -8,6 +8,7 @@ const Home = lazy(() => import('../pages/Home/Home'));
 const Kiosk = lazy(() => import('../pages/Kiosk/Kiosk'));
 const Register = lazy(() => import('../pages/Register/Register'));
 const Kitchen = lazy(() => import('../pages/Kitchen/Kitchen'));
+const Reports = lazy(() => import('../pages/Reports/Reports'));
 const Error404 = lazy(() => import('../pages/Error404'));
 
 // layout 'default' = navbar + signed-in only; 'kiosk' = full screen + signed-in
@@ -29,6 +30,8 @@ export const routes: AppRoute[] = [
     { path: '/kiosk', element: <Kiosk />, layout: 'kiosk', permission: 'orders.create' },
     // The cashier register (design §5.3–5.4, §5.10).
     { path: '/register', element: <Register />, layout: 'default', permission: 'orders.settle' },
+    // Shift Sales & Z-Reading (design §5.7, §7.9): report, close shift, void, export.
+    { path: '/reports', element: <Reports />, layout: 'default', permission: 'reports.view' },
     // The kitchen display (design §5.5–5.6): a paired KDS screen opens here.
     { path: '/kitchen', element: <Kitchen />, layout: 'kiosk', permission: 'kds.use' },
     { path: '*', element: <Error404 />, layout: 'blank' },

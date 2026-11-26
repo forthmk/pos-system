@@ -1,5 +1,5 @@
 import { Link, Navigate } from 'react-router-dom';
-import { CheckCircle2, ChefHat, MonitorSmartphone, ScanBarcode, UserRound } from 'lucide-react';
+import { ChartColumn, CheckCircle2, ChefHat, MonitorSmartphone, ScanBarcode, UserRound } from 'lucide-react';
 import { PERMISSIONS, type Permission } from '@shared/utils';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermission } from '../../hooks/usePermission';
@@ -68,6 +68,21 @@ const Home = () => {
                     <span>
                         <span className="block text-lg font-extrabold">Cashier Register</span>
                         <span className="block text-sm text-slate-300">Scan kiosk slips</span>
+                    </span>
+                </Link>
+            )}
+
+            {can('reports.view') && (
+                <Link
+                    to="/reports"
+                    className="flex items-center gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+                >
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-600 text-white">
+                        <ChartColumn className="h-7 w-7" />
+                    </span>
+                    <span>
+                        <span className="block text-lg font-extrabold text-slate-900">Shift Sales &amp; Z-Reading</span>
+                        <span className="block text-sm text-slate-500">Sales, tenders, close shift, voids, export</span>
                     </span>
                 </Link>
             )}

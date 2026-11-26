@@ -293,15 +293,34 @@ Max **2 PRs merged per day** into `development`.
 
 **Checked on the dev DB:** shift 1 report (₱3,227.72, 9 transactions, 5 IN · 4 OUT, GCash 27% · Cash 73%) → void ORD-000013: wrong PIN 401, cashier as approver 403, manager OK → gross ₱2,952.72, voids 1 / ₱275, expected cash ₱4,072 → void again 409 → CSV: cashier 403, manager `POS-01-X-2026-11-26.csv` → close with ₱4,070 counted: over / short −₱2, Z-0001, grand total ₱0 → ₱2,952.72 → close again 409, void in the closed shift 409, selling with no shift 409 → new shift opened with ₱2,000.
 
+
+### QB-009b — Reports screen, Close Shift, Void, Export
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/page/reports` (cut from QB-009a's branch) |
+| **Layer** | web |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.7, §7.9, UI reference "Sales Analytics & Shift Z-Reading Reports"; README in `pages/Reports/`):
+- **Menu | Reports** switch on the register (`components/pos/RegisterTabs.tsx`), `/reports` route (`reports.view`), Home card.
+- `/reports` from the mock-up: shift picker, four stat cards, Tender Reconciliation bars, Transaction Audit Log (VOID rows kept), cash drawer + X-reading (live) / Z-reading (saved).
+- **Close Shift** dialog: expected cash, counted cash with live over / short, save → Z-reading done step.
+- **Void** dialog from the audit log: reason, manager username + PIN, what will be refunded.
+- **Export CSV / Z-Read** (managers) downloads the server's file; **Print X / Z-reading** on 58 mm (`utils/printZReading.ts`), only when tapped.
+- Live refresh (`order.sent_to_kitchen`, `order.voided`, `shift.closed`).
+
+**Checked in the browser (1440×900, test manager at POS-01):** new shift → two walk-ins appear live (₱550.00, 1 IN · 1 OUT, GCash 50% · Cash 50%) → Void ORD-000015: wrong PIN shows the error, right PIN → VOID, struck through, ₱275.00, GCash 0% → Close Shift: expected ₱2,275.00, ₱2,270 shows Short −₱5.00, ₱2,275 saved as Z-0002 (Balanced) → the picker lists Z-0002 and Z-0001 → register shows Menu | Reports; test shift reopened with ₱2,000.
+
 ---
 
 ## 📋 Planned (in build order)
 
 | Ticket | What | Branch |
 |---|---|---|
-| QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
-| QB-009b | Screens: Reports tab (Shift Sales & Z-Reading from the mock-up), Close Shift dialog, Void with manager PIN, Export CSV / Z-Read | `addFeature/forthvargas/page/reports` |
-| QB-010 | Admin: menu / extras / translations, users, discounts, vouchers, terminals, settings | `addFeature/forthvargas/page/admin` |
+| QB-010a | Admin API: menu / extras / translations / prices, staff, discounts, vouchers, pairing terminals, store settings | `addFeature/forthvargas/api/admin` |
+| QB-010b | Admin screens for the above | `addFeature/forthvargas/page/admin` |
 
 ---
 
