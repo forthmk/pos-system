@@ -1,5 +1,6 @@
 import type { Language, PlaceKioskOrderBody } from '@pos-system/shared';
 import ApiError from '../../apiError';
+import { readBoard } from '../../pipeline/kitchen';
 import * as menu from '../../pipeline/menu';
 import * as orders from '../../pipeline/orders';
 import { logEvent } from '../../pipeline/status';
@@ -44,6 +45,9 @@ export async function placeOrder(principal: Principal, body: PlaceKioskOrderBody
 
 /** The Order Sent screen reads its order back (only this kiosk's store). */
 export const getOrder = (principal: Principal, id: number) => orders.getOrder(id, kioskTerminal(principal).store_id);
+
+/** Orders board: numbers being prepared and ready to collect (design §5.6). */
+export const board = (storeId: number) => readBoard(storeId);
 
 /** The order slip came out of the kiosk printer (design §5.9). */
 export async function markSlipPrinted(principal: Principal, id: number) {

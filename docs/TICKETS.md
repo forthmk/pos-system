@@ -233,6 +233,26 @@ Max **2 PRs merged per day** into `development`.
 
 **Checked in the browser (1440×900):** design example B rung up — receipt panel identical to the mock-up (Student (10%), Cash 500, Change ₱194.00, TOTAL ₱306) → PROCEED → Payment Settled (ORD-000008 • Sent to Kitchen KDS) → next number ORD-000009; kiosk order scanned with the simulated scanner → Senior (test ID) → preview ₱242.86 (design example C) → GCash ref → PROCEED; both orders paid, discounted and sent to the kitchen in the database.
 
+
+### QB-008a — Live feed + kitchen API
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/api/kitchen-live` (cut from QB-007b's branch) |
+| **Layer** | api + shared |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.5–5.6, §7.8, §8.2; READMEs in `pipeline/`, `modules/kds/`, `modules/live/`):
+- **Live feed:** `GET /api/live?token=<JWT>` (WebSocket, `@fastify/websocket` 10). The token is checked like any request (bad / switched off → closed 4401); screens join by store; ping every 25 s. `pipeline/live.ts` publishes after each change commits: `order.created`, `order.sent_to_kitchen` (with the §7.8 ticket), `order.locked` / `order.released`, `order.completed` / `order.recalled` / `order.cleared`, `order.cancelled` (incl. expired slips), `menu.availability`. Every message carries `server_time`.
+- **`pipeline/kitchen.ts`:** tickets (no prices; per station — lines without a station show everywhere), stats (pending, completed today, average prep), complete, recall (≤ `kds_recall_minutes`, before Clear Served, `completed_at` cleared), Clear Served, Orders board.
+- **`modules/kds`** (`kds.use`): `GET /tickets?station=`, `POST /orders/:id/complete`, `POST /orders/:id/recall`, `POST /clear-served`. Station: `?station=` → the KDS screen's own → the KDS terminal a chef signed in at → every station.
+- **`GET /api/kiosk/board`** (`orders.board`): Preparing / Ready display numbers.
+- Shared: `model/kds.model.ts`, `api/kds.ts` (`kdsApi`).
+- Tests: `pipeline-kitchen.test.ts`, `pipeline-live.test.ts` (87/87).
+
+**Checked on the dev DB:** chef socket at EXPO-01 → cashier rings up a walk-in (GCash) → `order.sent_to_kitchen` arrives with the ticket (2 × Double Smash Burger, 1 × Golden Crispy Fries, OUT) → complete (board Ready 000010) → complete again 409 → recall → complete → Clear Served (board empty, recall now 409 RECALL_EXPIRED); cashier on `/kds/tickets` → 403; bad token → 4401.
+
 ---
 
 ## 📋 Planned (in build order)
@@ -240,7 +260,7 @@ Max **2 PRs merged per day** into `development`.
 | Ticket | What | Branch |
 |---|---|---|
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
-| QB-008 | Live feed (WebSocket) + Kitchen Display (complete / recall / clear served) | `addFeature/forthvargas/page/kitchen-display` |
+| QB-008b | Screens: Kitchen display (`/kitchen`), kiosk Orders board, live refresh on the register (`useLiveFeed`) | `addFeature/forthvargas/page/kitchen-display` |
 | QB-009 | Reports: shift sales, tender reconciliation, audit log, close shift → Z-reading, CSV export | `addFeature/forthvargas/page/reports` |
 | QB-010 | Admin: menu / extras / translations, users, discounts, vouchers, terminals, settings | `addFeature/forthvargas/page/admin` |
 

@@ -121,12 +121,14 @@ The backend is split by **system** (the screens of design §2.1), joined by one 
 apps/api/src/
 ├── pipeline/             ONE order pipeline, shared by all three screens
 │   └── menu.ts           read the menu (names, prices, extras), sold out / back in
-│                         + pricing.ts · numbering.ts · orders.ts · status.ts (QB-005 →)
+│                         + pricing · numbering · orders · discounts · payments · status
+│                         + kitchen (tickets, complete, recall, board) · live (event hub)
 └── modules/              one module per system — the 5 files below each
     ├── auth/             who is using it: staff PIN, device sign-in, pairing screens
     ├── kiosk/            the self-service kiosk         → /api/kiosk/*
     ├── pos/              the cashier register           → /api/pos/*
-    └── kds/              the kitchen display (QB-008)    → /api/kds/*
+    ├── kds/              the kitchen display            → /api/kds/*
+    └── live/             the live feed (WebSocket)      → /api/live
 ```
 
 Each module keeps the commissary's layers (`modules/suppliers/` there is the cleanest template):
@@ -163,7 +165,7 @@ src/modules/pos/
 | Order pricing engine (lines, extras, discounts, VAT, centavos) — design §7.6 | `packages/shared/utils/pricing.ts`, re-exported by `src/pipeline/pricing.ts` — the API charges with it and the register previews with the same code | ✅ QB-005 / QB-007 |
 | Order number (`SELECT … FOR UPDATE` on `order_sequences`) — §7.7 | `src/pipeline/numbering.ts` | QB-005 |
 | Slip barcode `store + number + slip code + check digit` — §7.11 | `packages/shared/utils/slip-code.ts` | QB-006 |
-| Live feed (WebSocket `/ws`, events in §8.2) | `src/live/` + `@fastify/websocket` | QB-008 |
+| Live feed (WebSocket, events in §8.2) | `src/pipeline/live.ts` (hub) + `src/modules/live/` (`GET /api/live?token=`) + `@fastify/websocket` 10 | ✅ QB-008a |
 
 ### 4.4 Tests
 

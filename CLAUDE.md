@@ -142,12 +142,14 @@ Fastify app assembled in `src/app.ts`. The backend is split **by system, joined 
 apps/api/src/
 ├── pipeline/             ONE order pipeline, shared by all three screens
 │   └── menu.ts           read the menu (names, prices, extras), sold out / back in
-│                         + pricing.ts · numbering.ts · orders.ts · status.ts (QB-005 →)
+│                         + pricing · numbering · orders · discounts · payments · status
+│                         + kitchen (tickets, complete, recall, board) · live (event hub)
 └── modules/              one module per system — the 5 files below each
     ├── auth/             who is using it: staff PIN, device sign-in, pairing screens
     ├── kiosk/            the self-service kiosk         → /api/kiosk/*
     ├── pos/              the cashier register           → /api/pos/*
-    └── kds/              the kitchen display (QB-008)    → /api/kds/*
+    ├── kds/              the kitchen display            → /api/kds/*
+    └── live/             the live feed (WebSocket)      → /api/live
 ```
 
 Each module is the same layered stack:

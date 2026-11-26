@@ -14,6 +14,7 @@ import ApiError from '../../apiError';
 import * as discounts from '../../pipeline/discounts';
 import * as menu from '../../pipeline/menu';
 import { displayNo, formatOrderNo } from '../../pipeline/numbering';
+import { publish } from '../../pipeline/live';
 import * as orders from '../../pipeline/orders';
 import { priceOrder } from '../../pipeline/pricing';
 import * as status from '../../pipeline/status';
@@ -171,6 +172,7 @@ export async function cancel(principal: Principal, orderId: number) {
     await db.transaction().execute((trx) =>
         status.moveStatus(trx, { order_id: o.id, from_status: o.status as status.OrderStatus, to_status: 'cancelled', actor_type: 'cashier', user_id: userId, terminal_id: terminalId }),
     );
+    publish(storeId, 'order.cancelled', { order_id: o.id, order_no: o.order_no });
     return orders.getOrder(o.id, storeId);
 }
 
@@ -203,6 +205,7 @@ export async function scan(principal: Principal, raw: string): Promise<ScanResul
         await db.transaction().execute((trx) =>
             status.moveStatus(trx, { order_id: order.id, from_status: 'awaiting_payment', to_status: 'cancelled', actor_type: 'system', note: `Not paid within ${expiry} minutes` }),
         );
+        publish(storeId, 'order.cancelled', { order_id: order.id, order_no: order.order_no, expired: true });
         return { result: 'expired', order: await orders.getOrder(order.id, storeId) };
     }
     if (order.status === 'cancelled') return { result: 'expired', order: await orders.getOrder(order.id, storeId) };
@@ -212,6 +215,7 @@ export async function scan(principal: Principal, raw: string): Promise<ScanResul
     if (heldElsewhere) return { result: 'in_use', order_no: order.order_no, terminal: order.locked_by_code ?? 'another register' };
 
     await repository.lock(order.id, terminalId);
+    publish(storeId, 'order.locked', { order_id: order.id, order_no: order.order_no, terminal: register(principal).terminalCode });
     await status.logEvent(db, { order_id: order.id, event_type: 'scanned', from_status: null, to_status: null, actor_type: 'cashier', user_id: userId, terminal_id: terminalId });
     return {
         result: 'ready',
@@ -222,6 +226,8 @@ export async function scan(principal: Principal, raw: string): Promise<ScanResul
 
 /** POST /pos/orders/:id/release — CLEAR / Next Customer without paying. */
 export async function release(principal: Principal, orderId: number) {
-    const { terminalId } = register(principal);
-    return { released: await repository.release(orderId, terminalId) };
+    const { storeId, terminalId } = register(principal);
+    const released = await repository.release(orderId, terminalId);
+    if (released) publish(storeId, 'order.released', { order_id: orderId });
+    return { released };
 }

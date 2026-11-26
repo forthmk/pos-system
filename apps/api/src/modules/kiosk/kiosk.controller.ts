@@ -19,6 +19,11 @@ export async function slipPrinted(request: FastifyRequest<{ Params: { id: number
     return sendResult(reply, await service.markSlipPrinted(request.principal!, request.params.id));
 }
 
+// GET /kiosk/board — Preparing / Ready numbers (design §5.6)
+export async function board(request: FastifyRequest, reply: FastifyReply) {
+    return sendResult(reply, await service.board(request.principal!.store_id));
+}
+
 // GET /kiosk/orders/:id
 export async function order(request: FastifyRequest<{ Params: { id: number } }>, reply: FastifyReply) {
     return sendResult(reply, await service.getOrder(request.principal!, request.params.id));

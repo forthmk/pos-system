@@ -6,12 +6,14 @@ import sensible from '@fastify/sensible';
 import { checkDatabaseConnection, setDbLogger } from './services/database.service';
 import ApiError from './apiError';
 import authentication from './middleware/authentication';
+import websocket from '@fastify/websocket';
 
 // ─── Module registry ───────────────────────────────────────────────────────────
 // Add each module name here as it is built. The entry mounts the module's
 // routes.js at /api/<name> and is the sole registry of active modules.
-// auth = who is using the system; kiosk / pos / kds = the three screens, joined by src/pipeline/.
-const routes: string[] = ['auth', 'kiosk', 'pos'];
+// auth = who is using the system; kiosk / pos / kds = the three screens, joined by src/pipeline/;
+// live = the WebSocket feed that tells every screen what just changed.
+const routes: string[] = ['auth', 'kiosk', 'pos', 'kds', 'live'];
 
 export async function buildApp(): Promise<FastifyInstance> {
   const fastify = Fastify({
@@ -56,6 +58,9 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   // ── Auth: fastify.authenticate / fastify.checkPermission(permission) ─────────
   await fastify.register(authentication);
+
+  // ── Live feed (WebSocket, modules/live) ─────────────────────────────────────
+  await fastify.register(websocket);
 
   // ── Global error handler ──────────────────────────────────────────────────────
   fastify.setErrorHandler((error, _request, reply) => {

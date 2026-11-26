@@ -17,10 +17,13 @@ POS  ──┘                                         └─▶ status (prepari
 | `discounts.ts` | The discount button → pricing rule + `order_discounts` row: Student %, Senior / PWD (ID + name, group share), voucher (active, dates, uses, min spend) | §7.5–7.6, decisions 11–12 | ✅ |
 | `payments.ts` | `checkPayment` (cash ≥ total → change; GCash / card reference no.) and `recordPayment` | §7.5–7.6, decision 17 | ✅ |
 | `status.ts` | `ALLOWED` moves (§4.4), `moveStatus` (only while still `from` → else 409; stamps the time; clears a register lock; logs), `logEvent` | §4.4 | ✅ |
+| `kitchen.ts` | After payment: `readTickets` (no prices; per station), `readStats` (pending, completed today, avg prep), `completeOrder`, `recallOrder` (≤ `kds_recall_minutes`, before Clear Served), `clearServed`, `readBoard` (Preparing / Ready numbers), `announceSentToKitchen` (live event with the ticket) | §5.5–5.6, §7.8 | ✅ |
+| `live.ts` | The live feed hub: screens `join` by store (WebSocket at `/api/live`, `modules/live`); `publish(storeId, event, data)` after a change commits — `order.created`, `order.sent_to_kitchen`, `order.locked` / `released`, `order.completed` / `recalled` / `cleared`, `order.cancelled`, `menu.availability` | §8.2 | ✅ |
 
 ## Rules
 
 - **No HTTP here** — no `request`, `reply` or routes. Pipeline functions take plain values (store id, ids, quantities) and return plain data; they throw `ApiError` for business errors.
 - **Prices are decided here only.** A price, total or discount sent by a screen is never trusted (design §7.1).
 - **SQL sits in one exported `queries` object per file**, so a test can swap a query: see `src/test/pipeline-menu.test.ts`.
+- **Live events are sent after the transaction commits** and never fail the request (a screen that missed one refreshes on reconnect).
 - Something only one screen needs belongs in that screen's module, not here.

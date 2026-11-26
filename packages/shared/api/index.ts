@@ -5,10 +5,11 @@
  *   auth.ts   authApi    who is using the system: staff PIN, paired screens
  *   kiosk.ts  kioskApi   the self-service kiosk
  *   pos.ts    posApi     the cashier register
- *   kds.ts    kdsApi     the kitchen display (QB-008)
+ *   kds.ts    kdsApi     the kitchen display + Orders board
  *
  *   import { kioskApi } from '@shared/api';
  * ────────────────────────────────────────────────────────────────────────── */
 export * from './auth';
 export * from './kiosk';
 export * from './pos';
+export * from './kds';

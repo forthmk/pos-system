@@ -13,6 +13,8 @@ import ApiError from '../apiError';
 import type { DB, OrderDiscounts, OrderItemAddons, OrderItems, Orders } from '../config/database/types.gen';
 import { db } from '../services/database.service';
 import { assertMinSpend, type ResolvedDiscount } from './discounts';
+import { announceSentToKitchen } from './kitchen';
+import { publish } from './live';
 import { displayNo, nextOrderNumber } from './numbering';
 import { checkPayment, recordPayment, type CheckedPayment } from './payments';
 import { priceOrder, toCents, type PricedOrder } from './pricing';
@@ -384,7 +386,12 @@ export async function placeOrder(input: PlaceOrderInput): Promise<{ order: Order
         }
         throw e;
     }
-    return { order: await getOrder(orderId, input.storeId), created: true };
+    const order = await getOrder(orderId, input.storeId);
+    // Tell the other screens (pipeline/live): a kiosk order now waits at the
+    // register's Kiosk # list; a paid walk-in goes to the kitchen.
+    if (order.status === 'awaiting_payment') publish(input.storeId, 'order.created', { order_id: order.id, order_no: order.order_no, display_no: order.display_no });
+    else await announceSentToKitchen(input.storeId, order.id);
+    return { order, created: true };
 }
 
 /* ── settling a kiosk order ────────────────────────────────────────────── */
@@ -435,5 +442,6 @@ export async function settleOrder(input: SettleInput): Promise<OrderSummary> {
         await saveDiscount(trx, o.id, input.discount, priced);
         await queries.recordPayment(trx, { ...payment, order_id: o.id, shift_id: input.shiftId, terminal_id: input.terminalId, received_by: input.userId });
     });
+    await announceSentToKitchen(input.storeId, o.id);
     return getOrder(o.id, input.storeId);
 }

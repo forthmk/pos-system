@@ -7,11 +7,12 @@ import * as schema from './kiosk.schema';
 //   POST /api/kiosk/orders               place an order (a paired kiosk only)
 //   GET  /api/kiosk/orders/:id           the order, for the Order Sent screen
 //   POST /api/kiosk/orders/:id/slip-printed   the order slip was printed
-// The Orders board and online payment are added in QB-008.
+//   GET  /api/kiosk/board                Orders board: Preparing / Ready numbers
 async function routes(fastify: FastifyInstance) {
     fastify.get('/menu', { schema: schema.menu, preHandler: [fastify.checkPermission('menu.view')], handler: controller.menu });
     fastify.post('/orders', { schema: schema.placeOrder, preHandler: [fastify.checkPermission('orders.create')], handler: controller.placeOrder });
     fastify.get('/orders/:id', { schema: schema.order, preHandler: [fastify.checkPermission('orders.create')], handler: controller.order });
+    fastify.get('/board', { preHandler: [fastify.checkPermission('orders.board')], handler: controller.board });
     fastify.post('/orders/:id/slip-printed', { schema: schema.order, preHandler: [fastify.checkPermission('orders.create')], handler: controller.slipPrinted });
 }
 

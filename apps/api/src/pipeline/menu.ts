@@ -2,6 +2,7 @@ import { sql } from 'kysely';
 import type { KioskMenu, Language, MenuAddon, MenuItem } from '@pos-system/shared';
 import ApiError from '../apiError';
 import { db } from '../services/database.service';
+import { publish } from './live';
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Pipeline · menu — the one place the kiosk, the cashier and (later) the
@@ -142,6 +143,7 @@ export async function setItemAvailability(id: number, storeId: number, available
     const item = await queries.itemStore(id);
     if (!item || item.store_id !== storeId) throw new ApiError('Menu item not found.', 404);
     await queries.setItemAvailable(id, available);
+    publish(storeId, 'menu.availability', { kind: 'item', id: item.id, available });
     return { id: item.id, sku: item.sku, name: item.name, available };
 }
 
@@ -150,5 +152,6 @@ export async function setAddonAvailability(id: number, storeId: number, availabl
     const addon = await queries.addonStore(id);
     if (!addon || addon.store_id !== storeId) throw new ApiError('Extra not found.', 404);
     await queries.setAddonAvailable(id, available);
+    publish(storeId, 'menu.availability', { kind: 'addon', id: addon.id, available });
     return { id: addon.id, name: addon.name, available };
 }
