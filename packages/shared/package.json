@@ -1,0 +1,24 @@
+{
+  "name": "@pos-system/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "./model": "./dist/model/index.js",
+    "./axios": "./dist/axios/index.js",
+    "./api": "./dist/api/index.js",
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.49",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "typescript": "^6.0.3"
+  }
+}

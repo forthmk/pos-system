@@ -1,0 +1,68 @@
+# QuickBite POS — Tickets & Branch Log
+
+Every branch has a ticket here before code is written. Design: [QuickBite-System-Design.docx](QuickBite-System-Design.docx) · Code guide: [CODEBASE.md](CODEBASE.md).
+
+The October 2026 branches (`addFeature/forthvargas/migration/initial-schema`, `…/api/auth`, `…/api/categories`, `…/api/menu-items`, `…/api/tables`, `…/api/orders`, `…/api/payments`) were built for an earlier, simpler design (restaurant tables, inventory). They were never merged into `development` and are kept untouched for reference; QuickBite starts again from `development` with the tickets below.
+
+---
+
+## How to create a ticket
+
+1. Add an entry under the right status below — **Branch** is mandatory.
+2. Cut the branch from `development`:
+   ```bash
+   git checkout development
+   git pull origin development
+   git checkout -b <branch-name>
+   ```
+3. Ready for PR → move to **In Review**. Merged → **Done**.
+
+Branch names: `addFeature|refactor|fixed / forthvargas / <api|page|modal|component|hook|migration|shared> / <what>`.
+Build order inside a ticket: migration → API module → shared model / api → hook → UI.
+Max **2 PRs merged per day** into `development`.
+
+---
+
+## 🟠 In Review
+
+### QB-001 — Project foundation: scaffold, codebase guide, database migrations
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/migration/quickbite-schema` |
+| **Layer** | api + shared + docs |
+| **Status** | 🟠 In Review |
+
+**What was built:**
+- Monorepo scaffold (root, `apps/api`, `apps/web` shell, `packages/shared`) taken from the October scaffold, without its old schema and modules.
+- 4 migrations → the 23 tables of design §6 (`20261125_a…d`), rollback tested (all down, all up).
+- Migration runners moved to `src/scripts/` (`migrator.ts`, `migrate.ts`, `migrate-down.ts`) so the runner is never loaded as a migration; Kysely 0.29 `kysely/migration` import.
+- `db:gen` → `src/config/database/types.gen.ts`; `database.service.ts` typed `Kysely<DB>`.
+- `src/scripts/seed.ts` — store 01, KIOSK-01 / POS-01 / EXPO-01, 4 dev users, default settings, 5 discount types, the mock-up menu (5 categories, 18 items, 4 extras, 1 combo) in en / zh / ko.
+- `packages/shared`: barrels for `model/`, `utils/`, `api/` (builds clean).
+- Docs: `docs/CODEBASE.md` (structure + commissary reusable code map), `docs/QuickBite-System-Design.docx`, this file; `CLAUDE.md` points to both and records the forthmk / Terminal push rule.
+
+**Checked:** migrate ✓ · rollback ×4 + migrate ✓ · seed ✓ · `tsc` shared ✓ · `tsc` api ✓ · `GET /health` → ok.
+
+---
+
+## 📋 Planned (in build order)
+
+| Ticket | What | Branch |
+|---|---|---|
+| QB-002 | Auth: staff PIN login, roles, `authenticate` / `checkPermission` (from the commissary), kiosk / KDS device tokens, test-utils | `addFeature/forthvargas/api/auth-roles` |
+| QB-003 | Web shell: copy layouts, providers, form kit, DataTable, StatsCard, dialogs, hooks, i18n from the commissary (CODEBASE §6) + login page | `addFeature/forthvargas/page/web-shell` |
+| QB-004 | Menu API (kiosk menu in one call, POS menu, sold-out toggle) + Kiosk screens (start, menu, item + extras, cart) | `addFeature/forthvargas/api/menu` · `…/page/kiosk` |
+| QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
+| QB-006 | Kiosk order slip + barcode (thermal-printer `barcode` block), `GET /pos/scan/:code`, `useScannerInput` | `addFeature/forthvargas/api/slip-scan` |
+| QB-007 | Cashier Register: shifts, ticket, discounts, tender, settle scanned orders, receipt | `addFeature/forthvargas/page/register` |
+| QB-008 | Live feed (WebSocket) + Kitchen Display (complete / recall / clear served) | `addFeature/forthvargas/page/kitchen-display` |
+| QB-009 | Reports: shift sales, tender reconciliation, audit log, close shift → Z-reading, CSV export | `addFeature/forthvargas/page/reports` |
+| QB-010 | Admin: menu / extras / translations, users, discounts, vouchers, terminals, settings | `addFeature/forthvargas/page/admin` |
+
+---
+
+## ✅ Done
+
+_None yet._

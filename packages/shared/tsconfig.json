@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "outDir": "dist",
+    "rootDir": ".",
+    "declaration": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "moduleResolution": "Node",
+    "types": ["node"],
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["index.ts", "model/**/*.ts", "utils/**/*.ts"],
+  "exclude": ["node_modules", "dist", "axios", "api"]
+}
