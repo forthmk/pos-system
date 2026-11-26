@@ -18,7 +18,8 @@ POS  ──┘                                         └─▶ status (prepari
 | `payments.ts` | `checkPayment` (cash ≥ total → change; GCash / card reference no.) and `recordPayment` | §7.5–7.6, decision 17 | ✅ |
 | `status.ts` | `ALLOWED` moves (§4.4), `moveStatus` (only while still `from` → else 409; stamps the time; clears a register lock; logs), `logEvent` | §4.4 | ✅ |
 | `kitchen.ts` | After payment: `readTickets` (no prices; per station), `readStats` (pending, completed today, avg prep), `completeOrder`, `recallOrder` (≤ `kds_recall_minutes`, before Clear Served), `clearServed`, `readBoard` (Preparing / Ready numbers), `announceSentToKitchen` (live event with the ticket) | §5.5–5.6, §7.8 | ✅ |
-| `live.ts` | The live feed hub: screens `join` by store (WebSocket at `/api/live`, `modules/live`); `publish(storeId, event, data)` after a change commits — `order.created`, `order.sent_to_kitchen`, `order.locked` / `released`, `order.completed` / `recalled` / `cleared`, `order.cancelled`, `menu.availability` | §8.2 | ✅ |
+| `live.ts` | The live feed hub: screens `join` by store (WebSocket at `/api/live`, `modules/live`); `publish(storeId, event, data)` after a change commits — `order.created`, `order.sent_to_kitchen`, `order.locked` / `released`, `order.completed` / `recalled` / `cleared`, `order.cancelled`, `order.voided`, `shift.closed`, `menu.availability` | §8.2 | ✅ |
+| `reports.ts` | Shift Sales & Z-Reading: `summarize` (pure: gross = collected after discounts, voids out; tender reconciliation + shares; VAT split; expected cash = opening + cash − cash refunds; audit log), `readReport`, `closeShift` (counted cash → over / short → shift closed + numbered Z-reading with the running grand total, never changed), `listShifts`, `shiftCsv` | §5.7, §7.9, decisions 14–18 | ✅ |
 
 ## Rules
 

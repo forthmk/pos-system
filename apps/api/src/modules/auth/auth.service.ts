@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
-import type { AuthDevice, AuthStaff, LoginBody } from '@pos-system/shared';
+import { can, type AuthDevice, type AuthStaff, type LoginBody, type Permission } from '@pos-system/shared';
 import ApiError from '../../apiError';
 import type { DeviceToken, Principal, StaffToken, TokenPayload } from '../../types/fastify';
 import { assertNotLocked, recordFailure, recordSuccess } from '../../utils/loginThrottle';
@@ -72,6 +72,27 @@ export async function login({ username, pin, terminal_code }: LoginBody): Promis
         principal: staffPrincipal(user, terminal),
         token: { kind: 'staff', sub: user.id, store_id: user.store_id, role: user.role, terminal_id: terminal?.id ?? null },
     };
+}
+
+/**
+ * A manager approving something at the register (void + refund, decision
+ * 16): their username and PIN, checked like a sign-in (same lock after 5
+ * wrong PINs), and their role must be allowed `permission`.
+ */
+export async function verifyApprover(username: string, pin: string, permission: Permission, storeId: number) {
+    const name = username.trim();
+    const key = name.toLowerCase();
+    assertNotLocked(key);
+    const user = await repository.getUserByUsername(name);
+    if (!user || !(await bcrypt.compare(pin, user.pin_hash))) {
+        recordFailure(key);
+        throw new ApiError('Wrong manager username or PIN.', 401, 'manager_pin');
+    }
+    recordSuccess(key);
+    if (!user.is_active || user.store_id !== storeId || !can(user.role, permission)) {
+        throw new ApiError('Only a manager can approve this.', 403, 'manager_username');
+    }
+    return { id: user.id, name: user.name, role: user.role };
 }
 
 /* ── screens (kiosk / kitchen display) ─────────────────────────────────── */

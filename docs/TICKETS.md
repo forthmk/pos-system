@@ -274,6 +274,25 @@ Max **2 PRs merged per day** into `development`.
 
 **Checked in the browser (1440×900 and tablet 768×1024):** chef at EXPO-01 → walk-ins rung up by the cashier appear on the kitchen screen without reloading (000011, 000012, 000013) → mouse drag 000011 into Completed (Avg Prep updates) → tap ✓ on 000009 → Recall 000009 back to Pending → kiosk Orders board (manager) shows Preparing 6 / Ready 1, then 000012 moves to Ready by itself when the kitchen taps ✓ → Clear Served empties Completed and the board's Ready → API stopped: header shows OFFLINE — RECONNECTING; API back: LIVE again and the order placed meanwhile is on screen.
 
+
+### QB-009a — Reports, close shift / Z-reading, void API
+
+| Field | Value |
+|---|---|
+| **Type** | addFeature |
+| **Branch** | `addFeature/forthvargas/api/reports` (cut from QB-008b's branch) |
+| **Layer** | api + shared |
+| **Status** | 🟠 In Review |
+
+**What was built** (design §5.7, §7.9, decisions 14–18; no migration — `z_readings`, refunds and void fields were already in QB-001):
+- **`pipeline/reports.ts`**: the shift figures from the report mock-up (gross shift sales = money collected after discounts, vs yesterday, transactions IN / OUT, average ticket, items / order, tender reconciliation + shares, audit log) plus the Z-reading figures (sales before discounts, discounts & VAT exemption, VAT split, voids, refunds, first / last order, cash drawer). Close shift → expected cash, over / short, shift closed, numbered Z-reading with running grand total. CSV: one row per order + totals.
+- **`modules/pos`**: `GET /shifts`, `POST /shifts/:id/close`, `GET /reports/shift/:id`, `GET /reports/shift/:id/export.csv` (managers), `POST /orders/:id/void` (manager username + PIN; only paid orders in an open shift; payment refunded). Cashiers see only their own shifts.
+- `modules/auth` `verifyApprover`: manager PIN check with the same 5-wrong-PIN lock.
+- Live events `order.voided`, `shift.closed`. Shared `report.model.ts`, `posApi` additions.
+- Tests: `pipeline-reports.test.ts` (design examples A–C + a void), `pos-void.test.ts` (99/99).
+
+**Checked on the dev DB:** shift 1 report (₱3,227.72, 9 transactions, 5 IN · 4 OUT, GCash 27% · Cash 73%) → void ORD-000013: wrong PIN 401, cashier as approver 403, manager OK → gross ₱2,952.72, voids 1 / ₱275, expected cash ₱4,072 → void again 409 → CSV: cashier 403, manager `POS-01-X-2026-11-26.csv` → close with ₱4,070 counted: over / short −₱2, Z-0001, grand total ₱0 → ₱2,952.72 → close again 409, void in the closed shift 409, selling with no shift 409 → new shift opened with ₱2,000.
+
 ---
 
 ## 📋 Planned (in build order)
@@ -281,7 +300,7 @@ Max **2 PRs merged per day** into `development`.
 | Ticket | What | Branch |
 |---|---|---|
 | QB-005 | Orders API: pricing engine (shared, tested on the design's worked examples), discounts, order number, `POST /orders` | `addFeature/forthvargas/api/orders` |
-| QB-009 | Reports: shift sales, tender reconciliation, audit log, close shift → Z-reading, CSV export | `addFeature/forthvargas/page/reports` |
+| QB-009b | Screens: Reports tab (Shift Sales & Z-Reading from the mock-up), Close Shift dialog, Void with manager PIN, Export CSV / Z-Read | `addFeature/forthvargas/page/reports` |
 | QB-010 | Admin: menu / extras / translations, users, discounts, vouchers, terminals, settings | `addFeature/forthvargas/page/admin` |
 
 ---

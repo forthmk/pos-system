@@ -1,5 +1,13 @@
 import { Type } from '@sinclair/typebox';
-import { AvailabilityBodySchema, OpenShiftBodySchema, PosOrderBodySchema, SettleBodySchema, VoucherCheckBodySchema } from '@pos-system/shared';
+import {
+    AvailabilityBodySchema,
+    CloseShiftBodySchema,
+    OpenShiftBodySchema,
+    PosOrderBodySchema,
+    SettleBodySchema,
+    VoidOrderBodySchema,
+    VoucherCheckBodySchema,
+} from '@pos-system/shared';
 
 const id = Type.Object({ id: Type.Integer({ minimum: 1 }) });
 
@@ -11,3 +19,5 @@ export const voucher = { body: VoucherCheckBodySchema };
 export const placeOrder = { body: PosOrderBodySchema };
 export const settle = { params: id, body: SettleBodySchema };
 export const queue = { querystring: Type.Object({ status: Type.Literal('awaiting_payment') }) };
+export const closeShift = { params: id, body: CloseShiftBodySchema };
+export const voidOrder = { params: id, body: VoidOrderBodySchema };

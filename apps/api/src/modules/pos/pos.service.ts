@@ -1,6 +1,7 @@
 import {
     parseSlipCode,
     slipCode,
+    type CloseShiftBody,
     type DiscountInput,
     type KioskQueueItem,
     type OpenShiftBody,
@@ -8,6 +9,7 @@ import {
     type ScanResult,
     type SettleBody,
     type ShiftSummary,
+    type VoidOrderBody,
     type VoucherCheck,
 } from '@pos-system/shared';
 import ApiError from '../../apiError';
@@ -16,6 +18,8 @@ import * as menu from '../../pipeline/menu';
 import { displayNo, formatOrderNo } from '../../pipeline/numbering';
 import { publish } from '../../pipeline/live';
 import * as orders from '../../pipeline/orders';
+import * as reports from '../../pipeline/reports';
+import { verifyApprover } from '../auth/auth.service';
 import { priceOrder } from '../../pipeline/pricing';
 import * as status from '../../pipeline/status';
 import { db } from '../../services/database.service';
@@ -230,4 +234,77 @@ export async function release(principal: Principal, orderId: number) {
     const released = await repository.release(orderId, terminalId);
     if (released) publish(storeId, 'order.released', { order_id: orderId });
     return { released };
+}
+
+/* ── reports, close shift, void (design §5.7, §7.9, decision 16) ───────── */
+
+/** A cashier sees only their own shifts; managers / admins every shift of the store. */
+const ownShiftsOnly = (principal: Principal) => (principal.kind === 'staff' && principal.role === 'cashier' ? principal.id : null);
+
+const assertMayRead = async (principal: Principal, shiftId: number) => {
+    const s = await reports.findShift(shiftId, principal.store_id);
+    const own = ownShiftsOnly(principal);
+    if (own !== null && s.cashier_id !== own) throw new ApiError('You can only see your own shifts.', 403);
+    return s;
+};
+
+export const listShifts = (principal: Principal) => reports.listShifts(principal.store_id, ownShiftsOnly(principal));
+
+export async function shiftReport(principal: Principal, shiftId: number) {
+    await assertMayRead(principal, shiftId);
+    return reports.readReport(shiftId, principal.store_id);
+}
+
+/** Export CSV / Z-Read → { filename, csv }. */
+export async function shiftCsv(principal: Principal, shiftId: number) {
+    const report = await shiftReport(principal, shiftId);
+    const z = report.z_reading ? `Z-${String(report.z_reading.z_number).padStart(4, '0')}` : 'X';
+    const day = reports.localTime(report.shift.opened_at).slice(0, 10);
+    return { filename: `${report.shift.terminal_code}-${z}-${day}.csv`, csv: await reports.shiftCsv(report) };
+}
+
+/** Close Shift: counted cash → Z-reading. The cashier closes their own shift; a manager any. */
+export async function closeShift(principal: Principal, shiftId: number, body: CloseShiftBody) {
+    if (principal.kind !== 'staff') throw new ApiError('Sign in with your PIN to close a shift.', 403);
+    await assertMayRead(principal, shiftId);
+    const report = await reports.closeShift({ shiftId, storeId: principal.store_id, countedCash: body.counted_cash, userId: principal.id });
+    publish(principal.store_id, 'shift.closed', { shift_id: shiftId, z_number: report.z_reading?.z_number });
+    return report;
+}
+
+/**
+ * Void + refund a paid order (decision 16): a manager approves with their
+ * username + PIN. Only while the shift it was paid in is still open — a
+ * closed Z-reading never changes. The order becomes voided (gone from the
+ * kitchen and the board), its payment refunded; the report counts it under
+ * voids and the expected cash goes down by a cash refund.
+ */
+export async function voidOrder(principal: Principal, orderId: number, body: VoidOrderBody) {
+    const storeId = principal.store_id;
+    const manager = await verifyApprover(body.manager_username, body.manager_pin, 'orders.void', storeId);
+    const o = await repository.orderForVoid(orderId);
+    if (!o || o.store_id !== storeId) throw new ApiError('Order not found.', 404);
+    if (o.status === 'voided') throw new ApiError(`${o.order_no} is already voided.`, 409, 'status', { code: 'ALREADY_VOIDED' });
+    if (o.status !== 'preparing' && o.status !== 'completed') {
+        throw new ApiError(`${o.order_no} was never paid — cancel it instead.`, 409, 'status', { code: 'NOT_PAID', status: o.status });
+    }
+    if (o.shift_status !== 'open') {
+        throw new ApiError(`${o.order_no} is in a closed shift (Z-reading) and can't be voided.`, 409, 'status', { code: 'SHIFT_CLOSED' });
+    }
+    const reason = body.reason.trim();
+    await db.transaction().execute(async (trx) => {
+        await status.moveStatus(trx, {
+            order_id: o.id,
+            from_status: o.status as status.OrderStatus,
+            to_status: 'voided',
+            actor_type: 'manager',
+            user_id: manager.id,
+            terminal_id: principal.kind === 'staff' ? (principal.terminal?.id ?? null) : null,
+            note: reason,
+        });
+        await repository.markVoided(trx, o.id, manager.id, reason);
+        await repository.refundPayments(trx, o.id);
+    });
+    publish(storeId, 'order.voided', { order_id: o.id, order_no: o.order_no, display_no: displayNo(o.order_no) });
+    return orders.getOrder(o.id, storeId);
 }

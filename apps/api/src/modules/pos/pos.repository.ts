@@ -1,4 +1,5 @@
-import { sql } from 'kysely';
+import { sql, type Transaction } from 'kysely';
+import type { DB } from '../../config/database/types.gen';
 import { db } from '../../services/database.service';
 
 // Queries only the cashier register uses (slip scan, register lock).
@@ -80,3 +81,20 @@ export const orderState = (orderId: number) =>
         .select(['o.id', 'o.store_id', 'o.order_no', 'o.status', 'o.locked_by_terminal_id', 'lt.code as locked_by'])
         .where('o.id', '=', orderId)
         .executeTakeFirst();
+
+/* ── void + refund ─────────────────────────────────────────────────────── */
+
+/** The order, and whether the shift it was paid in is still open. */
+export const orderForVoid = (orderId: number) =>
+    db
+        .selectFrom('orders as o')
+        .leftJoin('shifts as s', 's.id', 'o.shift_id')
+        .select(['o.id', 'o.store_id', 'o.order_no', 'o.status', 'o.shift_id', 's.status as shift_status'])
+        .where('o.id', '=', orderId)
+        .executeTakeFirst();
+
+export const markVoided = (trx: Transaction<DB>, orderId: number, managerId: number, reason: string) =>
+    trx.updateTable('orders').set({ voided_by: managerId, void_reason: reason }).where('id', '=', orderId).execute();
+
+export const refundPayments = (trx: Transaction<DB>, orderId: number) =>
+    trx.updateTable('payments').set({ status: 'refunded' }).where('order_id', '=', orderId).where('status', '=', 'settled').execute();

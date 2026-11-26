@@ -12,6 +12,11 @@ async function routes(fastify: FastifyInstance) {
 
     fastify.get('/shifts/current', { preHandler: [can('shifts.use')], handler: controller.currentShift });
     fastify.post('/shifts/open', { schema: schema.openShift, preHandler: [can('shifts.use')], handler: controller.openShift });
+    fastify.get('/shifts', { preHandler: [can('reports.view')], handler: controller.listShifts });
+    fastify.post('/shifts/:id/close', { schema: schema.closeShift, preHandler: [can('shifts.use')], handler: controller.closeShift });
+
+    fastify.get('/reports/shift/:id', { schema: schema.byId, preHandler: [can('reports.view')], handler: controller.shiftReport });
+    fastify.get('/reports/shift/:id/export.csv', { schema: schema.byId, preHandler: [can('reports.export')], handler: controller.shiftCsv });
 
     fastify.get('/discount-types', { preHandler: [can('orders.create')], handler: controller.discountTypes });
     fastify.post('/vouchers/validate', { schema: schema.voucher, preHandler: [can('orders.create')], handler: controller.checkVoucher });
@@ -21,6 +26,8 @@ async function routes(fastify: FastifyInstance) {
     fastify.post('/orders', { schema: schema.placeOrder, preHandler: [can('orders.create')], handler: controller.placeOrder });
     fastify.post('/orders/:id/settle', { schema: schema.settle, preHandler: [can('orders.settle')], handler: controller.settle });
     fastify.post('/orders/:id/cancel', { schema: schema.byId, preHandler: [can('orders.cancel')], handler: controller.cancel });
+    // Void + refund: the register asks; a manager approves with username + PIN in the body.
+    fastify.post('/orders/:id/void', { schema: schema.voidOrder, preHandler: [can('orders.settle')], handler: controller.voidOrder });
     fastify.post('/orders/:id/release', { schema: schema.byId, preHandler: [can('orders.settle')], handler: controller.release });
 
     fastify.get('/scan/:code', { schema: schema.scan, preHandler: [can('orders.settle')], handler: controller.scan });

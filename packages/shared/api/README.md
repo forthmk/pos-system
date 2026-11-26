@@ -6,7 +6,7 @@ One file per backend module (`apps/api/src/modules/*`), re-exported by `index.ts
 |---|---|---|
 | `auth.ts` | `authApi` — `pinLogin`, `device`, `me`, `terminals`, `pairTerminal` | `modules/auth` |
 | `kiosk.ts` | `kioskApi` — `menu(lang)`, `placeOrder(body)`, `order(id)`, `slipPrinted(id)` | `modules/kiosk` |
-| `pos.ts` | `posApi` — `menu`, sold out, `currentShift` / `openShift`, `discountTypes`, `checkVoucher`, `nextNumber`, `kioskQueue`, `placeOrder`, `settle`, `cancel`, `scan`, `release` | `modules/pos` |
+| `pos.ts` | `posApi` — `menu`, sold out, `currentShift` / `openShift`, `discountTypes`, `checkVoucher`, `nextNumber`, `kioskQueue`, `placeOrder`, `settle`, `cancel`, `voidOrder`, `scan`, `release`, `shifts`, `closeShift`, `shiftReport`, `exportShiftCsv` | `modules/pos` |
 | `kds.ts` | `kdsApi` — `tickets(station?)`, `complete(id)`, `recall(id)`, `clearServed`, `board` | `modules/kds` (+ `GET /kiosk/board`) |
 
 ```ts

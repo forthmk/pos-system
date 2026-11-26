@@ -1,4 +1,4 @@
-import type { AvailabilityBody, OpenShiftBody, PosOrderBody, SettleBody, VoucherCheckBody } from '@pos-system/shared';
+import type { AvailabilityBody, CloseShiftBody, OpenShiftBody, PosOrderBody, SettleBody, VoidOrderBody, VoucherCheckBody } from '@pos-system/shared';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { sendResult } from '../../utils/sendResult';
 import * as service from './pos.service';
@@ -63,4 +63,33 @@ export async function release(request: ById, reply: FastifyReply) {
 // GET /pos/scan/:code
 export async function scan(request: FastifyRequest<{ Params: { code: string } }>, reply: FastifyReply) {
     return sendResult(reply, await service.scan(request.principal!, request.params.code));
+}
+
+// GET /pos/shifts — recent shifts (the report's shift picker)
+export async function listShifts(request: FastifyRequest, reply: FastifyReply) {
+    return sendResult(reply, await service.listShifts(request.principal!));
+}
+
+// POST /pos/shifts/:id/close — counted cash → Z-reading
+export async function closeShift(request: FastifyRequest<{ Params: { id: number }; Body: CloseShiftBody }>, reply: FastifyReply) {
+    return sendResult(reply, await service.closeShift(request.principal!, request.params.id, request.body));
+}
+
+// GET /pos/reports/shift/:id
+export async function shiftReport(request: ById, reply: FastifyReply) {
+    return sendResult(reply, await service.shiftReport(request.principal!, request.params.id));
+}
+
+// GET /pos/reports/shift/:id/export.csv — Export CSV / Z-Read (a download)
+export async function shiftCsv(request: ById, reply: FastifyReply) {
+    const { filename, csv } = await service.shiftCsv(request.principal!, request.params.id);
+    return reply
+        .header('Content-Type', 'text/csv; charset=utf-8')
+        .header('Content-Disposition', `attachment; filename="${filename}"`)
+        .send('\uFEFF' + csv); // BOM: Excel opens ₱ / names correctly
+}
+
+// POST /pos/orders/:id/void — manager username + PIN, reason
+export async function voidOrder(request: FastifyRequest<{ Params: { id: number }; Body: VoidOrderBody }>, reply: FastifyReply) {
+    return sendResult(reply, await service.voidOrder(request.principal!, request.params.id, request.body));
 }

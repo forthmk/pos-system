@@ -9,6 +9,8 @@
  *   order.locked / order.released   a slip scanned / let go          → register (Kiosk #)
  *   order.completed / order.recalled / order.cleared                 → kitchen, board
  *   order.cancelled        unpaid order cancelled / expired          → register, kitchen
+ *   order.voided           paid order voided + refunded (manager)    → kitchen, board, reports
+ *   shift.closed           shift closed, Z-reading saved             → register, reports
  *   menu.availability      item / extra sold out or back             → kiosk, register
  *
  * Every event carries `server_time` so a screen with a wrong clock still
@@ -24,6 +26,8 @@ export type LiveEventName =
     | 'order.recalled'
     | 'order.cleared'
     | 'order.cancelled'
+    | 'order.voided'
+    | 'shift.closed'
     | 'menu.availability';
 
 /** The bit of a WebSocket the hub needs (easy to fake in tests). */
